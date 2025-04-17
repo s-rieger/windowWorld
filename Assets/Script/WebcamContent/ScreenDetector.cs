@@ -23,11 +23,27 @@ public class ScreenDetector : MonoBehaviour
     Color[] webcamPixels;
     Color[] resultPixels;
 
+    Vector4[] playerScreens;
+
+    [SerializeField] private Color p1;
+    [SerializeField] private Color p2;
+    [SerializeField] private Color p3;
+    [SerializeField] private Color p4;    
+    [SerializeField] private Color p5;
+    [SerializeField] private Color p6;
+    [SerializeField] private Color p7;
+    [SerializeField] private Color p8;
+
+    private List<Color> colorList = new List<Color>(4);
 
     [SerializeField] int xOff;
     [SerializeField] int yOff;
     [SerializeField] int screenWidth;
     [SerializeField] int screenHeight;
+    [SerializeField] float  neededScanPercentage =.2f;
+
+    [SerializeField] int newPlayerOffset = 0;
+    [SerializeField] int xSpacing = 50;
 
     [SerializeField] int currentPlayers = 0;
 
@@ -36,6 +52,16 @@ public class ScreenDetector : MonoBehaviour
 
     void Start()
     {
+        colorList.Add(p1);
+        colorList.Add(p2);
+        colorList.Add(p3);
+        colorList.Add(p4);
+        colorList.Add(p5);
+        colorList.Add(p6);
+        colorList.Add(p7);
+        colorList.Add(p8);
+
+
         webcamTexture = new WebCamTexture();
         webcamDisplay.texture = webcamTexture;
         webcamTexture.Play();
@@ -78,13 +104,16 @@ public class ScreenDetector : MonoBehaviour
         outputTexture.SetPixels(resultPixels);
         outputTexture.Apply();
 
+        xOff = currentPlayers * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
 
+        // SET COLORED BOX FOR PLAYERS TO HOLD PHONE
+        // TODO: ADD PI CHART FOR JOINING PROGRESS
         for (int x = xOff; x < xOff + screenWidth; x++)
         {
             for (int y = yOff; y < yOff + screenHeight; y++)
             {
                 int index = y * width + x;
-                resultPixels[index] = Color.blue; // Default transparent
+                resultPixels[index] = colorList[currentPlayers]; // Default transparent
             }
         }
 
@@ -97,26 +126,33 @@ public class ScreenDetector : MonoBehaviour
         JoinBtn.gameObject.SetActive(false);
     }
 
+    void TracePlayers()
+    {
+
+    }
+
 
     IEnumerator ScanJoinArea()
     {
-        yield return new WaitForSeconds(1);
-
         Debug.Log("StartScanJoinArea");
 
         // Expand bounds by 50 pixels
         int padding = 50;
-        int s1minX = Mathf.Max(0, xOff - padding);
+        int s1minX = Mathf.Max(0, xOff - padding );
         int s1maxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
 
         int s1minY = Mathf.Max(0, yOff - padding);
         int s1maxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
 
+        int scan = 0;
         int scanGood = 0;
-        int screenScanJoinBuffer = 5000;
+        int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
 
         while(scanCompleteValue < 100)
         {
+            scan = 0;
+            scanGood = 0;
+
             webcamPixels = webcamTexture.GetPixels();
             resultPixels = new Color[webcamPixels.Length];
 
@@ -134,27 +170,55 @@ public class ScreenDetector : MonoBehaviour
                     if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                     {
                         scanGood++;
-                        resultPixels[index] = Color.green;
+                        resultPixels[index] = colorList[currentPlayers];
+
+                        // TODO: ADD MINX&Y & MAXX&Y TO PLAYER ARRAY | SET SCREEN SIZE & RATIO!
                     }
                     else
                     {
                         resultPixels[index] = Color.clear; // Default transparent
                     }
+
+                    scan++;
                 }
             }
-            Debug.Log("Scan entire Arean|good pixels: " + scanGood);
+
+            Debug.Log("Scan entire Arean|good pixels: " + scan+ "|" + scanGood);
 
 
-            if (scanGood > screenWidth*screenHeight - screenScanJoinBuffer) { scanCompleteValue++; Debug.Log("Scan good"); }
+            if (scanGood > screenWidth*screenHeight - screenScanJoinBuffer)
+            {                         
+                // TODO: FILL PICHART
+                scanCompleteValue++; 
+            }
+            else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD
+            {
+                // TODO: DRAIN PI CHART
+                scanCompleteValue = 0;
+                for (int x = xOff; x < xOff + screenWidth; x++)
+                {
+                    for (int y = yOff; y < yOff + screenHeight; y++)
+                    {
+                        int index = y * width + x;
+                        resultPixels[index] = colorList[currentPlayers]; // Default transparent
+                    }
+                }
+            }
             
             outputTexture.SetPixels(resultPixels);
             outputTexture.Apply();
 
+            yield return null;
         }
 
+        Debug.Log($"scan: {scan}, scannGood: {scanGood}");
         Debug.Log("Scan complete");
+        scan = 0;
+        scanGood = 0;
+        scanCompleteValue = 0;
+        currentPlayers++;
 
-        yield return null;
+        JoinBtn.gameObject.SetActive(true);
     }
 
 

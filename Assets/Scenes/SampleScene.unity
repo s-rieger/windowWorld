@@ -1090,11 +1090,18 @@ MonoBehaviour:
   greenMax: 1
   blueMax: 1
   JoinBtn: {fileID: 770369098}
-  xOff: 500
+  p1: {r: 0, g: 1, b: 0.06883955, a: 1}
+  p2: {r: 0, g: 0.2236805, b: 1, a: 1}
+  p3: {r: 1, g: 0, b: 0.98561764, a: 1}
+  p4: {r: 1, g: 0.7773966, b: 0, a: 1}
+  xOff: 0
   yOff: 500
   screenWidth: 300
   screenHeight: 200
+  neededScanPercentage: 0.9
+  newPlayerOffset: 0
   currentPlayers: 0
+  scanCompleteValue: 0
 --- !u!4 &1942398667
 Transform:
   m_ObjectHideFlags: 0
