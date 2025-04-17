@@ -16,6 +16,24 @@ public class ScreenDetector : MonoBehaviour
     public float greenMax = 0.3f;       // Max green value to still be considered "red"
     public float blueMax = 0.3f;        // Max blue value to still be considered "red"
 
+    [SerializeField] private Button JoinBtn;
+    int width;
+    int height;
+
+    Color[] webcamPixels;
+    Color[] resultPixels;
+
+
+    [SerializeField] int xOff;
+    [SerializeField] int yOff;
+    [SerializeField] int screenWidth;
+    [SerializeField] int screenHeight;
+
+    [SerializeField] int currentPlayers = 0;
+
+    [Header("Checks")]
+    public int scanCompleteValue = 0;
+
     void Start()
     {
         webcamTexture = new WebCamTexture();
@@ -30,23 +48,125 @@ public class ScreenDetector : MonoBehaviour
         );
         resultDisplay.texture = outputTexture;
 
+        JoinBtn.onClick.AddListener(() => { JoinPlayer(); });
+
+        webcamPixels = webcamTexture.GetPixels();
+        resultPixels = new Color[webcamPixels.Length];
+
+
         //InvokeRepeating(nameof(ProcessFrame), 1f, 0.1f); // Process 10 times a second
     }
 
     private void Update()
     {
-        ProcessFrame();
+        //ProcessFrame();
     }
+
+    void JoinPlayer()
+    {
+        webcamPixels = webcamTexture.GetPixels();
+        resultPixels = new Color[webcamPixels.Length];
+
+        width = webcamTexture.width;
+        height = webcamTexture.height;
+
+        for (int i = 0; i < resultPixels.Length; i++)
+        {
+            resultPixels[i] = Color.clear; // Default transparent
+        }
+
+        outputTexture.SetPixels(resultPixels);
+        outputTexture.Apply();
+
+
+        for (int x = xOff; x < xOff + screenWidth; x++)
+        {
+            for (int y = yOff; y < yOff + screenHeight; y++)
+            {
+                int index = y * width + x;
+                resultPixels[index] = Color.blue; // Default transparent
+            }
+        }
+
+        outputTexture.SetPixels(resultPixels);
+        outputTexture.Apply();
+
+
+        StartCoroutine(ScanJoinArea());
+
+        JoinBtn.gameObject.SetActive(false);
+    }
+
+
+    IEnumerator ScanJoinArea()
+    {
+        yield return new WaitForSeconds(1);
+
+        Debug.Log("StartScanJoinArea");
+
+        // Expand bounds by 50 pixels
+        int padding = 50;
+        int s1minX = Mathf.Max(0, xOff - padding);
+        int s1maxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+
+        int s1minY = Mathf.Max(0, yOff - padding);
+        int s1maxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
+
+        int scanGood = 0;
+        int screenScanJoinBuffer = 5000;
+
+        while(scanCompleteValue < 100)
+        {
+            webcamPixels = webcamTexture.GetPixels();
+            resultPixels = new Color[webcamPixels.Length];
+
+            width = webcamTexture.width;
+            height = webcamTexture.height;
+
+            // Second pass: loop over cropped region and set green where red was
+            for (int x = s1minX; x <= s1maxX; x++)
+            {
+                for (int y = s1minY; y <= s1maxY; y++)
+                {
+                    int index = y * width + x;
+                    Color pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        scanGood++;
+                        resultPixels[index] = Color.green;
+                    }
+                    else
+                    {
+                        resultPixels[index] = Color.clear; // Default transparent
+                    }
+                }
+            }
+            Debug.Log("Scan entire Arean|good pixels: " + scanGood);
+
+
+            if (scanGood > screenWidth*screenHeight - screenScanJoinBuffer) { scanCompleteValue++; Debug.Log("Scan good"); }
+            
+            outputTexture.SetPixels(resultPixels);
+            outputTexture.Apply();
+
+        }
+
+        Debug.Log("Scan complete");
+
+        yield return null;
+    }
+
 
     void ProcessFrame()
     {
         if (!webcamTexture.isPlaying || webcamTexture.width < 10) return;
 
-        Color[] webcamPixels = webcamTexture.GetPixels();
-        Color[] resultPixels = new Color[webcamPixels.Length];
+        webcamPixels = webcamTexture.GetPixels();
+        resultPixels = new Color[webcamPixels.Length];
 
-        int width = webcamTexture.width;
-        int height = webcamTexture.height;
+        width = webcamTexture.width;
+        height = webcamTexture.height;
 
         // Track red pixel bounds
         int minX = 0, minY = 0, maxX = width, maxY = height;

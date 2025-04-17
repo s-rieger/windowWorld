@@ -596,7 +596,7 @@ Canvas:
   m_GameObject: {fileID: 601009823}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1089,6 +1089,12 @@ MonoBehaviour:
   redThreshold: 0.8
   greenMax: 1
   blueMax: 1
+  JoinBtn: {fileID: 770369098}
+  xOff: 500
+  yOff: 500
+  screenWidth: 300
+  screenHeight: 200
+  currentPlayers: 0
 --- !u!4 &1942398667
 Transform:
   m_ObjectHideFlags: 0
