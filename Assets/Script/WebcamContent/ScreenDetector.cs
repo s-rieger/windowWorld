@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using static ScreenDetector;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class ScreenDetector : MonoBehaviour
 
     private WebCamTexture webcamTexture;
     private Texture2D outputTexture;
+
+    public RectTransform webcamRect;
+    public RectTransform playRect;
 
     public float redThreshold = 0.8f;   // How red a pixel needs to be
     public float greenMax = 0.3f;       // Max green value to still be considered "red"
@@ -23,7 +27,13 @@ public class ScreenDetector : MonoBehaviour
     Color[] webcamPixels;
     Color[] resultPixels;
 
-    Vector4[] playerScreens;
+    [System.Serializable]
+    public struct PlayerScreen
+    {
+        public Vector2 topL, topR, botL, botR;
+        public float ratio;
+    }
+    List<PlayerScreen> playerScreens = new List<PlayerScreen>();
 
     [SerializeField] private Color p1;
     [SerializeField] private Color p2;
@@ -34,7 +44,8 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] private Color p7;
     [SerializeField] private Color p8;
 
-    private List<Color> colorList = new List<Color>(4);
+    [SerializeField] public int currentPlayers = 1;
+    public List<Color> colorList = new List<Color>(4);
 
     [SerializeField] int xOff;
     [SerializeField] int yOff;
@@ -45,13 +56,24 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] int newPlayerOffset = 0;
     [SerializeField] int xSpacing = 50;
 
-    [SerializeField] int currentPlayers = 0;
 
     [Header("Checks")]
     public int scanCompleteValue = 0;
 
+    public static ScreenDetector Instance;
+
+    private void Awake()
+    {
+        if(Instance != null && Instance != this) {Destroy(Instance);}
+        else {Instance = this;}
+    }
+
     void Start()
     {
+        //webcamRect.localScale = new Vector3(1, -1, 1);
+        //playRect.localScale=new Vector3(1,-1,1);
+
+
         colorList.Add(p1);
         colorList.Add(p2);
         colorList.Add(p3);
@@ -86,9 +108,104 @@ public class ScreenDetector : MonoBehaviour
     private void Update()
     {
         //ProcessFrame();
+        TracePlayers();
+    }
+    void TracePlayers()
+    {
+        if (playerScreens.Count == 0 || currentPlayers == 0) { return; }
+
+        for (int i = 0; i < playerScreens.Count; i++)
+        {
+            xOff = i * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
+
+            int padding = 50;         // Expand bounds by 50 pixels
+            int currentFrameMinX = Mathf.Max(0, xOff - padding);
+            int currentFrameMaxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+            int currentFrameMinY = Mathf.Max(0, yOff - padding);
+            int currentFrameMaxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
+
+            int playerMinX = currentFrameMaxX;
+            int playerMaxX = currentFrameMinX;
+            int playerMinY = currentFrameMaxY;
+            int playerMaxY = currentFrameMinY;
+
+            int PlayerScreenWith;
+            int PlayerScreenHeight;
+            float PlayerScreenRatioCurrent;
+            float PlayerScreenRatioMax = 1;
+
+            int scan = 0;
+            int scanGood = 0;
+            int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
+
+            webcamPixels = webcamTexture.GetPixels();
+            resultPixels = new Color[webcamPixels.Length];
+
+            width = webcamTexture.width;
+            height = webcamTexture.height;
+
+            // Second pass: loop over cropped region and set green where red was
+            for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
+            {
+                for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
+                {
+                    int index = y * width + x;
+                    Color pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        scanGood++;
+                        resultPixels[index] = colorList[i];
+
+                        // TODO: ADD MINX&Y & MAXX&Y TO PLAYER ARRAY | SET SCREEN SIZE & RATIO!
+                        // Update bounds
+                        if (x < playerMinX) playerMinX = x;
+                        if (x > playerMaxX) playerMaxX = x;
+                        if (y < playerMinY) playerMinY = y;
+                        if (y > playerMaxY) playerMaxY = y;
+                    }
+                    else
+                    {
+                        resultPixels[index] = Color.clear; // Default transparent
+                    }
+
+                    PlayerScreenWith = playerMaxX - playerMinX;
+                    PlayerScreenHeight = playerMaxY - playerMinY;
+
+                    PlayerScreenRatioCurrent = (float)PlayerScreenWith / (float)PlayerScreenHeight;
+                    if (PlayerScreenRatioCurrent > PlayerScreenRatioMax)
+                    {
+                        PlayerScreenRatioMax = PlayerScreenRatioCurrent;
+                    }
+
+                    scan++;
+                }
+            }
+
+            playerScreens[i] = new PlayerScreen {
+                topL = new Vector2(playerMinX, playerMaxY), // playerMinX
+                topR = new Vector2(playerMaxX, playerMaxY), // playerMinX, // playerMaxX
+                botL = new Vector2(playerMinX, playerMinY), // playerMinX, // playerMinY
+                botR = new Vector2(playerMaxX, playerMinY), // playerMinX// playerMaxY
+                ratio = PlayerScreenRatioMax
+            };
+
+            i++;
+        }
+
+        outputTexture.SetPixels(resultPixels);
+        outputTexture.Apply();
     }
 
     void JoinPlayer()
+    {
+        ClearScreen();
+        StartCoroutine(ScanJoinArea());
+
+        JoinBtn.gameObject.SetActive(false);
+    }
+
+    void ClearScreen()
     {
         webcamPixels = webcamTexture.GetPixels();
         resultPixels = new Color[webcamPixels.Length];
@@ -103,55 +220,41 @@ public class ScreenDetector : MonoBehaviour
 
         outputTexture.SetPixels(resultPixels);
         outputTexture.Apply();
-
-        xOff = currentPlayers * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
-
-        // SET COLORED BOX FOR PLAYERS TO HOLD PHONE
-        // TODO: ADD PI CHART FOR JOINING PROGRESS
-        for (int x = xOff; x < xOff + screenWidth; x++)
-        {
-            for (int y = yOff; y < yOff + screenHeight; y++)
-            {
-                int index = y * width + x;
-                resultPixels[index] = colorList[currentPlayers]; // Default transparent
-            }
-        }
-
-        outputTexture.SetPixels(resultPixels);
-        outputTexture.Apply();
-
-
-        StartCoroutine(ScanJoinArea());
-
-        JoinBtn.gameObject.SetActive(false);
     }
-
-    void TracePlayers()
-    {
-
-    }
-
 
     IEnumerator ScanJoinArea()
     {
-        Debug.Log("StartScanJoinArea");
+        xOff = currentPlayers * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd... players
 
-        // Expand bounds by 50 pixels
-        int padding = 50;
-        int s1minX = Mathf.Max(0, xOff - padding );
-        int s1maxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+        int padding = 50;         // Expand bounds by 50 pixels
+        int currentFrameMinX = Mathf.Max(0, xOff - padding);
+        int currentFrameMaxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+        int currentFrameMinY = Mathf.Max(0, yOff - padding);
+        int currentFrameMaxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
 
-        int s1minY = Mathf.Max(0, yOff - padding);
-        int s1maxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
+        int playerMinX = currentFrameMaxX;
+        int playerMaxX = currentFrameMinX;
+        int playerMinY = currentFrameMaxY;
+        int playerMaxY = currentFrameMinY;
+
+        int PlayerScreenWith;
+        int PlayerScreenHeight;
+        float PlayerScreenRatioCurrent;
+        float PlayerScreenRatioMax = 0;
 
         int scan = 0;
         int scanGood = 0;
         int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
 
-        while(scanCompleteValue < 100)
+        while (scanCompleteValue < 100)
         {
             scan = 0;
             scanGood = 0;
+            playerMinX = currentFrameMaxX;
+            playerMaxX = currentFrameMinX;
+            playerMinY = currentFrameMaxY;
+            playerMaxY = currentFrameMinY;
+
 
             webcamPixels = webcamTexture.GetPixels();
             resultPixels = new Color[webcamPixels.Length];
@@ -160,9 +263,9 @@ public class ScreenDetector : MonoBehaviour
             height = webcamTexture.height;
 
             // Second pass: loop over cropped region and set green where red was
-            for (int x = s1minX; x <= s1maxX; x++)
+            for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
             {
-                for (int y = s1minY; y <= s1maxY; y++)
+                for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
                 {
                     int index = y * width + x;
                     Color pixel = webcamPixels[index];
@@ -170,26 +273,40 @@ public class ScreenDetector : MonoBehaviour
                     if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                     {
                         scanGood++;
-                        resultPixels[index] = colorList[currentPlayers];
+                        resultPixels[index] = colorList[currentPlayers-1];
 
                         // TODO: ADD MINX&Y & MAXX&Y TO PLAYER ARRAY | SET SCREEN SIZE & RATIO!
+                        // Update bounds
+                        if (x < playerMinX) playerMinX = x;
+                        if (x > playerMaxX) playerMaxX = x;
+                        if (y < playerMinY) playerMinY = y;
+                        if (y > playerMaxY) playerMaxY = y;
                     }
                     else
                     {
                         resultPixels[index] = Color.clear; // Default transparent
                     }
 
+                    PlayerScreenWith = playerMaxX - playerMinX;
+                    PlayerScreenHeight = playerMaxY - playerMinY;
+
+                    PlayerScreenRatioCurrent = (float)PlayerScreenWith / (float)PlayerScreenHeight;
+                    if (PlayerScreenRatioCurrent > PlayerScreenRatioMax)
+                    {
+                        PlayerScreenRatioMax = PlayerScreenRatioCurrent;
+                    }
+
                     scan++;
                 }
             }
 
-            Debug.Log("Scan entire Arean|good pixels: " + scan+ "|" + scanGood);
+            Debug.Log("Scan entire Arean|good pixels: " + scan + "|" + scanGood);
 
 
-            if (scanGood > screenWidth*screenHeight - screenScanJoinBuffer)
-            {                         
+            if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer)
+            {
                 // TODO: FILL PICHART
-                scanCompleteValue++; 
+                scanCompleteValue++;
             }
             else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD
             {
@@ -204,7 +321,7 @@ public class ScreenDetector : MonoBehaviour
                     }
                 }
             }
-            
+
             outputTexture.SetPixels(resultPixels);
             outputTexture.Apply();
 
@@ -213,13 +330,32 @@ public class ScreenDetector : MonoBehaviour
 
         Debug.Log($"scan: {scan}, scannGood: {scanGood}");
         Debug.Log("Scan complete");
+
         scan = 0;
         scanGood = 0;
         scanCompleteValue = 0;
         currentPlayers++;
 
+
+        PlayerScreen newPlayer = new PlayerScreen
+        {
+            topL = new Vector2(playerMinX, playerMaxY), // playerMinX
+            topR = new Vector2(playerMaxX, playerMaxY), // playerMinX, // playerMaxX
+            botL = new Vector2(playerMinX, playerMinY), // playerMinX, // playerMinY
+            botR = new Vector2(playerMaxX, playerMinY), // playerMinX// playerMaxY
+            ratio = PlayerScreenRatioMax
+        };
+
+        playerScreens.Add(newPlayer);
+
+
         JoinBtn.gameObject.SetActive(true);
     }
+
+
+
+
+
 
 
     void ProcessFrame()
