@@ -1240,14 +1240,15 @@ MonoBehaviour:
   p8: {r: 0, g: 0, b: 0, a: 0}
   currentPlayers: 0
   colorList: []
-  xOff: 0
-  yOff: 500
   screenWidth: 300
   screenHeight: 200
-  neededScanPercentage: 0.9
+  xOff: 0
+  yOff: 500
   newPlayerOffset: 0
   xSpacing: 50
+  neededScanPercentage: 0.9
   scanCompleteValue: 0
+  rt: {fileID: 1443654989}
 --- !u!4 &1942398667
 Transform:
   m_ObjectHideFlags: 0
