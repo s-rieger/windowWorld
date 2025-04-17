@@ -51,6 +51,13 @@
     ]
   }
 }]]></component>
+  <component name="RiderProblemsViewState">
+    <hideBySeverity>
+      <option value="11" />
+      <option value="15" />
+      <option value="300" />
+    </hideBySeverity>
+  </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Unity.exe" />
@@ -97,7 +104,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1744893891367</updated>
-      <workItem from="1744893895576" duration="3920000" />
+      <workItem from="1744893895576" duration="10553000" />
     </task>
     <servers />
   </component>
