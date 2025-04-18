@@ -9,6 +9,12 @@ using UnityEditor;
 
 public class ScreenDetector : MonoBehaviour
 {
+    [Header("Player Stuff")]
+    public GameObject PlayerGO;
+    public List<PlayerHandler> PlayerHandlers = new List<PlayerHandler>();
+    public Transform PlayerContainer;
+
+    [Header("UI Screens")]
     public RawImage webcamDisplay;      // To display the webcam feed
     public RawImage resultDisplay;      // To display the green-pixel result
 
@@ -18,10 +24,12 @@ public class ScreenDetector : MonoBehaviour
     public RectTransform webcamRect;
     public RectTransform playRect;
 
+    [Header("Target Color Values")]
     public float redThreshold = 0.8f;   // How red a pixel needs to be
     public float greenMax = 0.3f;       // Max green value to still be considered "red"
     public float blueMax = 0.3f;        // Max blue value to still be considered "red"
 
+    [Header("UI Interactions")]
     [SerializeField] private Button JoinBtn;
     int width;
     int height;
@@ -42,7 +50,8 @@ public class ScreenDetector : MonoBehaviour
     [System.Serializable]
     public struct PlayerInput
     {
-        public Vector2 rotInput;
+        //public Vector2 rotInput;
+        public float rotInput;
         public float yInput;
         public float zInput;
     }
@@ -127,7 +136,7 @@ public class ScreenDetector : MonoBehaviour
     }
     void TracePlayers()
     {
-        if (playerScreens.Count == 0 || currentPlayers == 0) { return; }
+        if (playerScreens.Count == 0 || PlayerHandlers.Count == 0 || currentPlayers == 0 ) { return; }
 
         for (int i = 0; i < playerScreens.Count; i++)
         {
@@ -216,11 +225,13 @@ public class ScreenDetector : MonoBehaviour
 
             playerInputs[i] = new PlayerInput
             {
-                rotInput = (playerScreens[i].topL - playerScreens[i].topR).normalized,
-                //rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
+                //rotInput = (playerScreens[i].topL - playerScreens[i].topR).normalized,
+                rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
                 yInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
                 zInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
             };
+
+            PlayerHandlers[i].rotInput = playerInputs[i].rotInput;
 
             Debug.Log(
                 $"+++++ Player_{i} stats +++++ |" +
@@ -406,7 +417,7 @@ public class ScreenDetector : MonoBehaviour
 
         // TODO: HEIGHT, WIDTH & RATIO ARE ALL WRONG!!
 
-        PlayerScreen newPlayer = new PlayerScreen
+        PlayerScreen newPlayerScreen = new PlayerScreen
         {
             topL = new Vector2(playerMaxX, playerMaxY), // playerMinX, // playerMaxX
             topR = new Vector2(playerMinX, playerMinY), // playerMinX, // playerMinY
@@ -418,15 +429,22 @@ public class ScreenDetector : MonoBehaviour
             width = PlayerScreenWidthMax,
             ratio = PlayerScreenWidthMax / PlayerScreenHeightMax
         };
-        playerScreens.Add(newPlayer);
+        playerScreens.Add(newPlayerScreen);
 
         PlayerInput newPlayerInput = new PlayerInput
         {
-            rotInput = Vector2.zero,
+            //rotInput = Vector2.zero,
+            rotInput = 0,
             yInput = 0,
             zInput = 0
         };
         playerInputs.Add(newPlayerInput);
+
+
+        GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
+        PlayerHandler newPlayerHandler = newPlayer.GetComponent<PlayerHandler>();
+        newPlayerHandler.PlayerColor = colorList[currentPlayers];
+        PlayerHandlers.Add(newPlayerHandler);
 
         JoinBtn.gameObject.SetActive(true);
     }
