@@ -193,12 +193,14 @@ Shader "Roystan/Grass"
 			}
 
             CGPROGRAM
-            #pragma vertex vert
+			#pragma vertex vert
 			#pragma geometry geo
-            #pragma fragment frag
+			#pragma fragment frag
 			#pragma hull hull
 			#pragma domain domain
-			#pragma target 4.6
+			#pragma require geometry
+			#pragma require tessellation tessHW
+			#pragma target 4.0
 			#pragma multi_compile_fwdbase
             
 			#include "Lighting.cginc"
