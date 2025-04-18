@@ -98,8 +98,8 @@ public class ScreenDetector : MonoBehaviour
 
     void Start()
     {
-        //webcamRect.localScale = new Vector3(1, -1, 1);
-        //playRect.localScale=new Vector3(1,-1,1);
+        webcamRect.localScale = new Vector3(-1, 1, 1);
+        playRect.localScale = new Vector3(-1, 1, 1);
 
 
         colorList.Add(p1);
