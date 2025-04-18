@@ -1,31 +1,22 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PieChartHandler : MonoBehaviour
-{
-    [TextArea] public string debugString;
-    
-    [SerializeField] private ScreenDetector screenDetector;
+{    
     [SerializeField] private Image pieChart;
-    [SerializeField] private Transform pieChartParent;
-
-    private Vector3 position;
+    public Color pieChartColor;
+    public TextMeshProUGUI infoText;
     
     void Start()
     {
         pieChart.fillAmount = 0f;
+        pieChart.color = pieChartColor;
+        infoText.text = "";
     }
 
-    void Update()
+    public void FillScanProgress(int fillValue)
     {
-        if(screenDetector == null) { return; }
-
-        pieChart.fillAmount = screenDetector.scanCompleteValue / 100f;
-        pieChart.color = screenDetector.colorList[screenDetector.currentPlayers];
-        
-        position = pieChartParent.transform.position;
-        position.x = -screenDetector.xOff;
-        pieChartParent.transform.position = position;
-        Debug.Log(position.x);
+        pieChart.fillAmount = fillValue / 100f;
     }
 }

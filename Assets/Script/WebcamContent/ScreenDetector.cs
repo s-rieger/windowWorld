@@ -9,6 +9,9 @@ using UnityEditor;
 
 public class ScreenDetector : MonoBehaviour
 {
+    Color[] webcamPixels;
+    Color[] resultPixels;
+
     [Header("Player Stuff")]
     [SerializeField] public int currentPlayers = 0;
     public GameObject PlayerGO;
@@ -19,10 +22,8 @@ public class ScreenDetector : MonoBehaviour
     public RectTransform UIScreen;
     public RawImage webcamDisplay;      // To display the webcam feed
     public RawImage resultDisplay;      // To display the green-pixel result
-
     private WebCamTexture webcamTexture;
     private Texture2D outputTexture;
-
     public RectTransform webcamRect;
     public RectTransform playRect;
 
@@ -36,12 +37,9 @@ public class ScreenDetector : MonoBehaviour
     int uiWidth;
     int uiHeight;
     public GameObject ScanProgressUIElement;
+    public List<PieChartHandler> PieChartHandlers = new List<PieChartHandler>();
     public Transform ScanProgressContainer;
-
-    Color[] webcamPixels;
-    Color[] resultPixels;
-
-    [System.Serializable]
+    
     public struct PlayerScreen
     {
         public Vector2 topL, topR, botL, botR, minMin, maxMax;
@@ -51,7 +49,6 @@ public class ScreenDetector : MonoBehaviour
     }
     List<PlayerScreen> playerScreens = new List<PlayerScreen>();
 
-    [System.Serializable]
     public struct PlayerInput
     {
         //public Vector2 rotInput;
@@ -62,6 +59,7 @@ public class ScreenDetector : MonoBehaviour
     List<PlayerInput> playerInputs = new List<PlayerInput>();
 
     [Header("Colors")]
+    public List<Color> colorList = new List<Color>(8);
     [SerializeField] private Color p1;
     [SerializeField] private Color p2;
     [SerializeField] private Color p3;
@@ -71,8 +69,6 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] private Color p7;
     [SerializeField] private Color p8;
 
-    public List<Color> colorList = new List<Color>(4);
-
     [Header("Screen Scan Box")]
     [SerializeField] int screenWidth;
     [SerializeField] int screenHeight;
@@ -80,14 +76,10 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] public int yOff;
     [SerializeField] int newPlayerOffset = 0;
     [SerializeField] int xSpacing = 50;
-
     [SerializeField] float  neededScanPercentage =.2f;
-
-
 
     [Header("Checks")]
     public int scanCompleteValue = 0;
-
 
     [Header("References")]
     public RectTransform rt;
@@ -210,8 +202,6 @@ public class ScreenDetector : MonoBehaviour
                 }
             }
 
-
-
             PlayerScreen ps = playerScreens[i];
             if (playerMinYVec.x < playerMaxYVec.x) // turned Right
             {
@@ -271,12 +261,12 @@ public class ScreenDetector : MonoBehaviour
 
         float angle = Vector2.SignedAngle(Vector2.right, dir);
 
-        Debug.Log("GetDirectionalValue: " + angle);
+        Debug.Log("Angle: " + angle);
         // angle is 0 at right, positive going counter-clockwise, negative clockwise
 
-        if (angle >= 0f && angle <= 90f)
+        if (angle >= 15f && angle <= 60f)
             return 1f; // From right to up (up-right sector)
-        else if (angle < 0f && angle >= -45f)
+        else if (angle < -15f && angle >= -60f)
             return -1f; // From right to down (down-right sector)
         else
             return 0f; // All other directions
@@ -313,7 +303,7 @@ public class ScreenDetector : MonoBehaviour
 
         // Padding around Player Area
         // TODO: MAKE THIS DYNAMIC!!!
-        int padding = 50;         // Expand bounds by 50 pixels
+        int padding = 0;         // Expand bounds by 50 pixels
         int currentFrameMinX = Mathf.Max(0, xOff - padding);
         int currentFrameMaxX = Mathf.Min(uiWidth - 1, xOff + screenWidth + padding);
         int currentFrameMinY = Mathf.Max(0, yOff - padding);
@@ -321,8 +311,13 @@ public class ScreenDetector : MonoBehaviour
 
         // SCan Progress UI Element
         GameObject newScanProgressUIElement = Instantiate(ScanProgressUIElement, ScanProgressContainer);
+        PieChartHandler pieChartHandler = newScanProgressUIElement.GetComponent<PieChartHandler>();
+        pieChartHandler.pieChartColor = colorList[currentPlayers];
+        PieChartHandlers.Add(pieChartHandler);
+
         RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
-        newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - padding, uiHeight - screenHeight - padding); // x,y flipped?!
+        newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - xOff, yOff); // x,y flipped?!
+        //newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - padding, uiHeight - screenHeight - padding); // x,y flipped?!
         //newScanProgressRectTransform.anchoredPosition = new Vector2(screenWidth - xOff, screenHeight - yOff); // x,y flipped?!
 
         int playerMinX = currentFrameMaxX;
@@ -396,12 +391,12 @@ public class ScreenDetector : MonoBehaviour
             }
 
             //Debug.Log("Scan entire Arean|good pixels: " + scan + "|" + scanGood);
-            if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer)
+            if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer) // Good Scan
             {
                 // TODO: FILL PICHART
                 scanCompleteValue++;
             }
-            else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD
+            else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
             {
                 // TODO: DRAIN PI CHART
                 scanCompleteValue = 0;
@@ -411,9 +406,12 @@ public class ScreenDetector : MonoBehaviour
                     {
                         int index = y * uiWidth + x;
                         resultPixels[index] = colorList[currentPlayers];
+                        resultPixels[index].a = .2f;
                     }
                 }
             }
+
+            PieChartHandlers[currentPlayers].FillScanProgress(scanCompleteValue);
 
             outputTexture.SetPixels(resultPixels);
             outputTexture.Apply();
