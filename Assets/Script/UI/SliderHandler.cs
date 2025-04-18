@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class SliderHandler : MonoBehaviour
 {
     [SerializeField] private Slider slider;
+    [SerializeField] private RectTransform handle;
     [SerializeField] private float speed;
 
     private float targetValue;
@@ -22,6 +23,7 @@ public class SliderHandler : MonoBehaviour
         {
             targetValue = Random.Range(-1f, 1f);
         }
+        
     }
     
     // If you are reading this, idk if this is what you meant by return value but
