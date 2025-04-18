@@ -16,6 +16,7 @@ public class ScreenDetector : MonoBehaviour
     public Transform PlayerContainer;
 
     [Header("UI Screens")]
+    public RectTransform UIScreen;
     public RawImage webcamDisplay;      // To display the webcam feed
     public RawImage resultDisplay;      // To display the green-pixel result
 
@@ -321,7 +322,7 @@ public class ScreenDetector : MonoBehaviour
         // SCan Progress UI Element
         GameObject newScanProgressUIElement = Instantiate(ScanProgressUIElement, ScanProgressContainer);
         RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
-        newScanProgressRectTransform.anchoredPosition = new Vector2(1280 - screenWidth - padding, 720 - screenHeight - padding); // x,y flipped?!
+        newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - padding, uiHeight - screenHeight - padding); // x,y flipped?!
         //newScanProgressRectTransform.anchoredPosition = new Vector2(screenWidth - xOff, screenHeight - yOff); // x,y flipped?!
 
         int playerMinX = currentFrameMaxX;
