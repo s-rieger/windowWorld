@@ -202,6 +202,38 @@ public class ScreenDetector : MonoBehaviour
                 }
             }
 
+            #region Check Scan 
+            // Check if enough Pixels have been detected
+            if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer) // Good Scan
+            {
+                // TODO: FILL PICHART
+                scanCompleteValue++;
+                PieChartHandlers[i].infoText.text = "";
+            }
+            else if (scanGood == screenWidth * screenHeight) // Maybe do upperlimit instead of all pixels
+            {
+                PieChartHandlers[i].infoText.text = "Too close \nto Camera";
+                return;
+            }
+            else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
+            {
+                scanCompleteValue = 0;
+                PieChartHandlers[i].infoText.text = "Unable to \ndetect screen";
+
+                for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
+                {
+                    for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
+                    {
+                        int index = y * uiWidth + x;
+                        resultPixels[index] = colorList[i];
+                        resultPixels[index].a = .2f;
+                    }
+                }
+                return;
+            }
+            #endregion
+
+
             PlayerScreen ps = playerScreens[i];
             if (playerMinYVec.x < playerMaxYVec.x) // turned Right
             {
@@ -395,11 +427,17 @@ public class ScreenDetector : MonoBehaviour
             {
                 // TODO: FILL PICHART
                 scanCompleteValue++;
+                PieChartHandlers[currentPlayers].infoText.text = "";
+            }
+            else if(scanGood == screenWidth * screenHeight)
+            {
+                PieChartHandlers[currentPlayers].infoText.text = "Too close \nto Camera";
             }
             else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
             {
-                // TODO: DRAIN PI CHART
                 scanCompleteValue = 0;
+                PieChartHandlers[currentPlayers].infoText.text = "Unable to \ndetect screen";
+
                 for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
                 {
                     for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
@@ -457,6 +495,10 @@ public class ScreenDetector : MonoBehaviour
         PlayerHandlers.Add(newPlayerHandler);
 
         JoinBtn.gameObject.SetActive(true);
+
+        PieChartHandlers[currentPlayers].infoText.text = "Ready";
+        yield return new WaitForSeconds(2);
+        PieChartHandlers[currentPlayers].infoText.text = "";
     }
 
 
