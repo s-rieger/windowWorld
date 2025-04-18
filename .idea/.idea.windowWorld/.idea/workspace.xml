@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/ArcSlider.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/ArcSlider.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/UI/SliderHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/UI/SliderHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Texture/halfcirle.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Texture/halfcirle.png.meta" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +21,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Script/UI/PieChartHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Script/UI/SliderHandleHandler.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -103,7 +108,10 @@
       <option name="presentableId" value="Default" />
       <updated>1744893891367</updated>
       <workItem from="1744893895576" duration="10553000" />
-      <workItem from="1744990189729" duration="2130000" />
+      <workItem from="1744990189729" duration="3321000" />
+      <workItem from="1745004515129" duration="2595000" />
+      <workItem from="1745009989571" duration="530000" />
+      <workItem from="1745014889306" duration="2442000" />
     </task>
     <servers />
   </component>
