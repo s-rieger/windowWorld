@@ -33,7 +33,7 @@ public class PlayerHandler : MonoBehaviour
         float rotationAmount = rotInput * playerRotSpeed * Time.fixedDeltaTime;
 
         // Apply rotation around z-axis
-        transform.Rotate(0f, 0f, rotationAmount);
+        transform.Rotate(0f, rotationAmount, 0f, Space.Self);
 
 
         #region Use Vec2 for rotattion

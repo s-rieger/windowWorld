@@ -10,6 +10,7 @@ using UnityEditor;
 public class ScreenDetector : MonoBehaviour
 {
     [Header("Player Stuff")]
+    [SerializeField] public int currentPlayers = 0;
     public GameObject PlayerGO;
     public List<PlayerHandler> PlayerHandlers = new List<PlayerHandler>();
     public Transform PlayerContainer;
@@ -31,8 +32,10 @@ public class ScreenDetector : MonoBehaviour
 
     [Header("UI Interactions")]
     [SerializeField] private Button JoinBtn;
-    int width;
-    int height;
+    int uiWidth;
+    int uiHeight;
+    public GameObject ScanProgressUIElement;
+    public Transform ScanProgressContainer;
 
     Color[] webcamPixels;
     Color[] resultPixels;
@@ -57,7 +60,7 @@ public class ScreenDetector : MonoBehaviour
     }
     List<PlayerInput> playerInputs = new List<PlayerInput>();
 
-
+    [Header("Colors")]
     [SerializeField] private Color p1;
     [SerializeField] private Color p2;
     [SerializeField] private Color p3;
@@ -67,7 +70,6 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] private Color p7;
     [SerializeField] private Color p8;
 
-    [SerializeField] public int currentPlayers = 0;
     public List<Color> colorList = new List<Color>(4);
 
     [Header("Screen Scan Box")]
@@ -140,13 +142,24 @@ public class ScreenDetector : MonoBehaviour
 
         for (int i = 0; i < playerScreens.Count; i++)
         {
+            int scan = 0;
+            int scanGood = 0;
+            int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
+
+            webcamPixels = webcamTexture.GetPixels();
+            resultPixels = new Color[webcamPixels.Length];
+
+            uiWidth = webcamTexture.width;
+            uiHeight = webcamTexture.height;
+
+
             xOff = i * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
 
             int padding = 50;         // Expand bounds by 50 pixels
             int currentFrameMinX = Mathf.Max(0, xOff - padding);
-            int currentFrameMaxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+            int currentFrameMaxX = Mathf.Min(uiWidth - 1, xOff + screenWidth + padding);
             int currentFrameMinY = Mathf.Max(0, yOff - padding);
-            int currentFrameMaxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
+            int currentFrameMaxY = Mathf.Min(uiHeight - 1, yOff + screenHeight + padding);
 
             int playerMinX = currentFrameMaxX;
             int playerMaxX = currentFrameMinX;
@@ -165,22 +178,14 @@ public class ScreenDetector : MonoBehaviour
             float PlayerScreenWidthMax = 0;
             float PlayerScreenHeightMax = 0;
 
-            int scan = 0;
-            int scanGood = 0;
-            int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
 
-            webcamPixels = webcamTexture.GetPixels();
-            resultPixels = new Color[webcamPixels.Length];
-
-            width = webcamTexture.width;
-            height = webcamTexture.height;
 
             // Second pass: loop over cropped region and set green where red was
             for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
             {
                 for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
                 {
-                    int index = y * width + x;
+                    int index = y * uiWidth + x;
                     Color pixel = webcamPixels[index];
 
                     if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
@@ -289,8 +294,8 @@ public class ScreenDetector : MonoBehaviour
         webcamPixels = webcamTexture.GetPixels();
         resultPixels = new Color[webcamPixels.Length];
 
-        width = webcamTexture.width;
-        height = webcamTexture.height;
+        uiWidth = webcamTexture.width;
+        uiHeight = webcamTexture.height;
 
         for (int i = 0; i < resultPixels.Length; i++)
         {
@@ -305,11 +310,19 @@ public class ScreenDetector : MonoBehaviour
     {
         xOff = currentPlayers * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd... players
 
+        // Padding around Player Area
+        // TODO: MAKE THIS DYNAMIC!!!
         int padding = 50;         // Expand bounds by 50 pixels
         int currentFrameMinX = Mathf.Max(0, xOff - padding);
-        int currentFrameMaxX = Mathf.Min(width - 1, xOff + screenWidth + padding);
+        int currentFrameMaxX = Mathf.Min(uiWidth - 1, xOff + screenWidth + padding);
         int currentFrameMinY = Mathf.Max(0, yOff - padding);
-        int currentFrameMaxY = Mathf.Min(height - 1, yOff + screenHeight + padding);
+        int currentFrameMaxY = Mathf.Min(uiHeight - 1, yOff + screenHeight + padding);
+
+        // SCan Progress UI Element
+        GameObject newScanProgressUIElement = Instantiate(ScanProgressUIElement, ScanProgressContainer);
+        RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
+        newScanProgressRectTransform.anchoredPosition = new Vector2(1280 - screenWidth - padding, 720 - screenHeight - padding); // x,y flipped?!
+        //newScanProgressRectTransform.anchoredPosition = new Vector2(screenWidth - xOff, screenHeight - yOff); // x,y flipped?!
 
         int playerMinX = currentFrameMaxX;
         int playerMaxX = currentFrameMinX;
@@ -340,15 +353,15 @@ public class ScreenDetector : MonoBehaviour
             webcamPixels = webcamTexture.GetPixels();
             resultPixels = new Color[webcamPixels.Length];
 
-            width = webcamTexture.width;
-            height = webcamTexture.height;
+            uiWidth = webcamTexture.width;
+            uiHeight = webcamTexture.height;
 
             // Second pass: loop over cropped region and set green where red was
             for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
             {
                 for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
                 {
-                    int index = y * width + x;
+                    int index = y * uiWidth + x;
                     //Debug.Log("Index: " +  index);
                     Color pixel = webcamPixels[index];
 
@@ -382,8 +395,6 @@ public class ScreenDetector : MonoBehaviour
             }
 
             //Debug.Log("Scan entire Arean|good pixels: " + scan + "|" + scanGood);
-
-
             if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer)
             {
                 // TODO: FILL PICHART
@@ -393,12 +404,12 @@ public class ScreenDetector : MonoBehaviour
             {
                 // TODO: DRAIN PI CHART
                 scanCompleteValue = 0;
-                for (int x = xOff; x < xOff + screenWidth; x++)
+                for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
                 {
-                    for (int y = yOff; y < yOff + screenHeight; y++)
+                    for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
                     {
-                        int index = y * width + x;
-                        resultPixels[index] = colorList[currentPlayers]; // Default transparent
+                        int index = y * uiWidth + x;
+                        resultPixels[index] = colorList[currentPlayers];
                     }
                 }
             }
@@ -486,18 +497,18 @@ public class ScreenDetector : MonoBehaviour
         webcamPixels = webcamTexture.GetPixels();
         resultPixels = new Color[webcamPixels.Length];
 
-        width = webcamTexture.width;
-        height = webcamTexture.height;
+        uiWidth = webcamTexture.width;
+        uiHeight = webcamTexture.height;
 
         // Track red pixel bounds
-        int minX = 0, minY = 0, maxX = width, maxY = height;
+        int minX = 0, minY = 0, maxX = uiWidth, maxY = uiHeight;
 
         // First pass: detect red pixels and calculate bounds
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < uiHeight; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < uiWidth; x++)
             {
-                int index = y * width + x;
+                int index = y * uiWidth + x;
                 Color pixel = webcamPixels[index];
 
                 if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
@@ -518,16 +529,16 @@ public class ScreenDetector : MonoBehaviour
         // Expand bounds by 50 pixels
         int padding = 50;
         minX = Mathf.Max(0, minX - padding);
-        maxX = Mathf.Min(width - 1, maxX + padding);
+        maxX = Mathf.Min(uiWidth - 1, maxX + padding);
         minY = Mathf.Max(0, minY - padding);
-        maxY = Mathf.Min(height - 1, maxY + padding);
+        maxY = Mathf.Min(uiHeight - 1, maxY + padding);
 
         // Second pass: loop over cropped region and set green where red was
         for (int y = minY; y <= maxY; y++)
         {
             for (int x = minX; x <= maxX; x++)
             {
-                int index = y * width + x;
+                int index = y * uiWidth + x;
                 Color pixel = webcamPixels[index];
 
                 if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)

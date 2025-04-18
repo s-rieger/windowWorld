@@ -18,6 +18,8 @@ public class PieChartHandler : MonoBehaviour
 
     void Update()
     {
+        if(screenDetector == null) { return; }
+
         pieChart.fillAmount = screenDetector.scanCompleteValue / 100f;
         pieChart.color = screenDetector.colorList[screenDetector.currentPlayers];
         
