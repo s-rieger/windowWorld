@@ -6,8 +6,11 @@ public class PlayerHandler : MonoBehaviour
     [SerializeField] private float playerRotSpeed;
 
     [Header("Player Visuals")]
-    [SerializeField] MeshRenderer meshRend;
+    [SerializeField] SkinnedMeshRenderer skinMeshRend;
+    [SerializeField] Material  BlossomMat;
     [SerializeField] private Color playerColor;
+    //[SerializeField] MeshRenderer meshRend;
+
     public Color PlayerColor
     {
         get
@@ -18,7 +21,10 @@ public class PlayerHandler : MonoBehaviour
         {
 
             playerColor = value;
-            meshRend.material.color = playerColor;
+            //meshRend.material.color = playerColor;
+
+            skinMeshRend.material = new Material(BlossomMat);
+            skinMeshRend.material.color = playerColor;
         }
     }
 
