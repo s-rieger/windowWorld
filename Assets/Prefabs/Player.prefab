@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 951062026974661496}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -114,7 +114,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerRotSpeed: 25
-  meshRend: {fileID: 0}
   skinMeshRend: {fileID: 6423045851702107572}
   BlossomMat: {fileID: 2100000, guid: 744b90f16e2e346478dd2898d7d8d972, type: 2}
   playerColor: {r: 0, g: 0, b: 0, a: 0}

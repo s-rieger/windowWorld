@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerHandler : MonoBehaviour
@@ -10,7 +11,7 @@ public class PlayerHandler : MonoBehaviour
     [SerializeField] Material  BlossomMat;
     [SerializeField] private Color playerColor;
     //[SerializeField] MeshRenderer meshRend;
-
+    
     public Color PlayerColor
     {
         get
@@ -33,6 +34,12 @@ public class PlayerHandler : MonoBehaviour
     //public Vector2 rotInput;
     public float rotInput;
 
+    
+    private void Awake()
+    {
+        GameManager.instance.targets.Add(gameObject);
+    }
+    
     private void FixedUpdate()
     {
         // Calculate rotation amount for this frame
