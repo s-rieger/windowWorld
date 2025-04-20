@@ -15,7 +15,6 @@ public class EnemyStateMachine : MonoBehaviour
     
     [Header("Roaming State")]
     public float travelDistance = 100f;
-    public float searchRadius = 40f;
     
     [Header("Attack State")]
     public GameObject target;
@@ -83,12 +82,11 @@ public class EnemyStateMachine : MonoBehaviour
         {
             float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
 
-            // Stop dashing if close enough to the target
-            if (distanceToTarget <= agent.stoppingDistance)
-            {
-                Debug.Log("Reached target during dash.");
-                break;
-            }
+            // if (distanceToTarget <= agent.stoppingDistance)
+            // {
+            //     Debug.Log("Reached target during dash.");
+            //     break;
+            // }
 
             agent.Move(dashDirection * dashSpeed * Time.deltaTime);
             elapsedTime += Time.deltaTime;
@@ -98,12 +96,4 @@ public class EnemyStateMachine : MonoBehaviour
         isDashing = false;
     }
     
-    private void OnDrawGizmos()
-    {
-        if (agent != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(agent.transform.position, searchRadius); 
-        }
-    }
 }
