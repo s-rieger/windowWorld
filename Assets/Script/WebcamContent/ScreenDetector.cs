@@ -1,12 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using UnityEngine.UI;
-using static ScreenDetector;
-using UnityEngine.Windows;
 using UnityEditor;
-using static UnityEngine.GridBrushBase;
+using System;
+using static ScreenDetector;
+using TMPro;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -92,6 +91,9 @@ public class ScreenDetector : MonoBehaviour
     public RectTransform rt;
     public static ScreenDetector Instance;
 
+    public RectTransform targetPixelAnalysis;
+    public TextMeshProUGUI targetPixelAnalysisText;
+
     private void Awake()
     {
         if(Instance != null && Instance != this) {Destroy(Instance);}
@@ -125,6 +127,32 @@ public class ScreenDetector : MonoBehaviour
         JoinBtn.onClick.AddListener(() => { JoinPlayer(); });
         //InvokeRepeating(nameof(ProcessFrame), 1f, 0.1f); // Process 10 times a second
         ClearScreen();
+
+        StartCoroutine(PixelValueDebug());
+    }
+
+    IEnumerator PixelValueDebug()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(.2f);
+            // DEBUG STUFF
+            webcamPixels = webcamTexture.GetPixels();
+            uiWidth = webcamTexture.width;
+            uiHeight = webcamTexture.height;
+
+            int targetHeight = uiHeight / 2 + 300;
+            int targetWidth = uiWidth / 2;
+
+            int index = (targetHeight * uiWidth) + targetWidth;
+
+            //targetPixelAnalysis.localScale = new Vector3(-1, 1, 1);
+            targetPixelAnalysis.anchoredPosition = new Vector2(targetWidth, targetHeight); // x,y flipped?!
+
+            targetPixelAnalysisText.text = $"R: {Math.Round(webcamPixels[index].r, 3)}\nG: {Math.Round(webcamPixels[index].g,3)}\nB: {Math.Round(webcamPixels[index].b,3)}";
+            Debug.Log("targetPixel" + webcamPixels[index]);
+        }
+
     }
 
     IEnumerator TracePlayers()
@@ -184,7 +212,7 @@ public class ScreenDetector : MonoBehaviour
                         int index = y * uiWidth + x;
                         Color pixel = webcamPixels[index];
 
-                        if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax && pixel.grayscale > grayscaleThreshold)
+                        if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax) // && pixel.grayscale > grayscaleThreshold
                         {
                             if(x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
                             {
@@ -419,7 +447,7 @@ public class ScreenDetector : MonoBehaviour
                     {
                         int index = y * uiWidth + x;
                         Color pixel = webcamPixels[index];
-
+                        Debug.Log("PIXEL VALUE: " +  pixel);
                         if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                         {
                             if (x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
