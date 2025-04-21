@@ -32,6 +32,7 @@ public class ScreenDetector : MonoBehaviour
     public float redThreshold = 0.8f;   // How red a pixel needs to be
     public float greenMax = 0.3f;       // Max green value to still be considered "red"
     public float blueMax = 0.3f;        // Max blue value to still be considered "red"
+    public float grayscaleThreshold = 0.8f;        // Max blue value to still be considered "red"
 
     [Header("UI Interactions")]
     [SerializeField] private Button JoinBtn;
@@ -56,8 +57,8 @@ public class ScreenDetector : MonoBehaviour
     {
         //public Vector2 rotInput;
         public float rotInput;
-        public float yInput;
-        public float zInput;
+        public float tiltInput;
+        public float yawInput;
     }
     List<PlayerInput> playerInputs = new List<PlayerInput>(6);
 
@@ -142,7 +143,6 @@ public class ScreenDetector : MonoBehaviour
             for (int i = 0; i < playerScreens.Count; i++)
             {
                 if (playerScreens[i].isCurrentlyActive == false) { continue; }
-                PieChartHandlers[i].InputDebug.SetActive(true);
 
                 int scan = 0;
                 int scanGood = 0;
@@ -184,7 +184,7 @@ public class ScreenDetector : MonoBehaviour
                         int index = y * uiWidth + x;
                         Color pixel = webcamPixels[index];
 
-                        if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                        if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax && pixel.grayscale > grayscaleThreshold)
                         {
                             if(x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
                             {
@@ -217,11 +217,13 @@ public class ScreenDetector : MonoBehaviour
                 if (scanGood >= screenWidth * screenHeight * .9f) // Maybe do upperlimit instead of all pixels
                 {
                     PieChartHandlers[i].infoText.text = "Too close \nto Camera";
+                    PieChartHandlers[i].CornerTrackers.SetActive(false);
                     continue;
                 }
                 else if (isOnEdge == true)
                 {
                     PieChartHandlers[i].infoText.text = "Too close \nto Edge";
+                    PieChartHandlers[i].CornerTrackers.SetActive(false);
                     continue;
                 }
 
@@ -231,6 +233,7 @@ public class ScreenDetector : MonoBehaviour
                     // TODO: FILL PICHART
                     scanCompleteMaxValue++;
                     PieChartHandlers[i].infoText.text = "";
+                    PieChartHandlers[i].CornerTrackers.SetActive(true);
                 }
                 else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
                 {
@@ -272,27 +275,18 @@ public class ScreenDetector : MonoBehaviour
                 {
                     //rotInput = (playerScreens[i].topL - playerScreens[i].topR).normalized,
                     rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
-                    yInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
-                    zInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
+                    tiltInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
+                    yawInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
                 };
 
-                PlayerHandlers[i].rotInput = playerInputs[i].rotInput;
+                PieChartHandlers[i].TopLeftTracker.anchoredPosition = playerScreens[i].topL;
+                PieChartHandlers[i].TopRightTracker.anchoredPosition = playerScreens[i].topR;
+                PieChartHandlers[i].BottomLeftTracker.anchoredPosition = playerScreens[i].botL;
+                PieChartHandlers[i].BottomRightTracker.anchoredPosition = playerScreens[i].botR;
 
-                //Debug.Log(
-                //    $"+++++ Player_{i} stats +++++ |" +
-                //    $" height: {playerScreens[i].height}|" +
-                //    $" width: {playerScreens[i].height}|" +
-                //    $" ratio: {playerScreens[i].ratio}");
-                //Debug.Log(
-                //    $"+++++ minMin & maxMax ++++" +
-                //    $"minMin: {new Vector2(playerMinX, playerMinY)} | " +
-                //    $"maxMax {new Vector2(playerMaxX, playerMaxY)} | " +
-                //    $"normalized {(playerScreens[i].maxMax - playerScreens[i].minMin).normalized}");
-                //Debug.Log(
-                //    $"+++++ Input ++++" +
-                //    $"rotInput: {playerInputs[i].rotInput}| " +
-                //    $"yinput: {playerInputs[i].yInput}| " +
-                //    $"zinput: {playerInputs[i].zInput}" );
+                PieChartHandlers[i].rotInputValue.text = playerInputs[i].rotInput.ToString();
+                PieChartHandlers[i].tiltInputValue.text = playerInputs[i].tiltInput.ToString();
+                PieChartHandlers[i].yawInputValue.text = playerInputs[i].yawInput.ToString();
 
                 i++;
             }
@@ -519,8 +513,8 @@ public class ScreenDetector : MonoBehaviour
 
                     PlayerInput tmpInput = playerInputs[i];
                     tmpInput.rotInput = 0;
-                    tmpInput.yInput = 0;
-                    tmpInput.zInput = 0;
+                    tmpInput.tiltInput = 0;
+                    tmpInput.yawInput = 0;
                     playerInputs[i] = tmpInput;
 
                     GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
@@ -729,6 +723,11 @@ public class ScreenDetector : MonoBehaviour
             if (playerScreens[i].isCurrentlyActive == false)
             {
                 PieChartHandlers[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                PieChartHandlers[i].InputDebug.SetActive(true);
+                PieChartHandlers[i].CornerTrackers.SetActive(true);
             }
         }
 
