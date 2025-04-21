@@ -509,23 +509,32 @@ public class ScreenDetector : MonoBehaviour
         // Draw spheres at each point
         if (currentPlayers == 0) { return; }
 
-        Vector3 worldTopLeft = rt.TransformPoint(playerScreens[0].topL);
-        Vector3 worldTopRight = rt.TransformPoint(playerScreens[0].topR);
-        Vector3 worldBottomLeft = rt.TransformPoint(playerScreens[0].botL);
-        Vector3 worldBottomRight = rt.TransformPoint(playerScreens[0].botR);
 
-        Gizmos.DrawSphere(playerScreens[0].topL, 1);
-        Gizmos.DrawSphere(playerScreens[0].topR, 1);
-        Gizmos.DrawSphere(playerScreens[0].botL, 1);
-        Gizmos.DrawSphere(playerScreens[0].botR, 1);
+        List<Vector2> cornerList = new List<Vector2>(4);
+        cornerList.Add(playerScreens[0].topL);
+        cornerList.Add(playerScreens[0].topR);
+        cornerList.Add(playerScreens[0].botL);
+        cornerList.Add(playerScreens[0].botR);
 
-#if UNITY_EDITOR
-        // Draw labels using Handles
-        Handles.Label(playerScreens[0].topL, "Top Left");
-        Handles.Label(playerScreens[0].topR, "Top Right");
-        Handles.Label(playerScreens[0].botL, "Bottom Left");
-        Handles.Label(playerScreens[0].botR, "Bottom Right");
-#endif
+        Vector3 worldPos;
+        for (int i = 0; i < cornerList.Count; i++) 
+        { 
+            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rt, cornerList[i], Camera.main, out worldPos))
+            {
+                worldPos = new Vector3(-1 * worldPos.x, 1 * worldPos.y, 1 * worldPos.z); // FLippingx-axis
+                Gizmos.DrawSphere(worldPos, 10);
+
+//#if UNITY_EDITOR
+                // Draw labels using Handles
+                if(i == 0) Handles.Label(worldPos, "Top Left");
+                else if(i == 1) Handles.Label(worldPos, "Top Right");
+                else if (i == 2) Handles.Label(worldPos, "Bottom Left");
+                else if (i == 3) Handles.Label(worldPos, "Bottom Right");
+//#endif
+            }
+
+
+        }
     }
 
 
