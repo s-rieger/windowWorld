@@ -17,6 +17,7 @@ public class PieChartHandler : MonoBehaviour
 
     [Header("Tracker")]
     public GameObject CornerTrackers;
+    public RectTransform CornerRect;
     public RectTransform TopLeftTracker;
     public RectTransform BottomLeftTracker;
     public RectTransform TopRightTracker;
