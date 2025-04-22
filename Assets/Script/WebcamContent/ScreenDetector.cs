@@ -150,7 +150,6 @@ public class ScreenDetector : MonoBehaviour
             targetPixelAnalysis.anchoredPosition = new Vector2(targetWidth, targetHeight); // x,y flipped?!
 
             targetPixelAnalysisText.text = $"R: {Math.Round(webcamPixels[index].r, 3)}\nG: {Math.Round(webcamPixels[index].g,3)}\nB: {Math.Round(webcamPixels[index].b,3)}";
-            Debug.Log("targetPixel" + webcamPixels[index]);
         }
 
     }
@@ -447,7 +446,6 @@ public class ScreenDetector : MonoBehaviour
                     {
                         int index = y * uiWidth + x;
                         Color pixel = webcamPixels[index];
-                        Debug.Log("PIXEL VALUE: " +  pixel);
                         if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                         {
                             if (x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
@@ -498,6 +496,7 @@ public class ScreenDetector : MonoBehaviour
                 else if(isOnEdge == true)
                 {
                     PieChartHandlers[i].infoText.text = "Too close \nto Edge";
+                    continue;
                 }
 
                 if (scanGood > (screenWidth * screenHeight * neededScanPercentage)) // Good Scan
