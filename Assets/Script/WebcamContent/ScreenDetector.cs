@@ -401,7 +401,7 @@ public class ScreenDetector : MonoBehaviour
 
     IEnumerator ScanJoinArea()
     {
-        int maxPlayerPossible = 1;
+        int maxPlayerPossible = 6;
 
         for (int i = 0; i < maxPlayerPossible; i++)
         {
