@@ -142,12 +142,13 @@ public class ScreenDetector : MonoBehaviour
             uiHeight = webcamTexture.height;
 
             int targetHeight = uiHeight / 2 + 300;
-            int targetWidth = uiWidth / 2;
+            int targetWidth = uiWidth / 2 - 200;
+            int targetWidthAnchor = uiWidth / 2 + 200;
 
             int index = (targetHeight * uiWidth) + targetWidth;
 
             //targetPixelAnalysis.localScale = new Vector3(-1, 1, 1);
-            targetPixelAnalysis.anchoredPosition = new Vector2(targetWidth, targetHeight); // x,y flipped?!
+            targetPixelAnalysis.anchoredPosition = new Vector2(targetWidthAnchor, targetHeight); // x,y flipped?!
 
             targetPixelAnalysisText.text = $"R: {Math.Round(webcamPixels[index].r, 3)}\nG: {Math.Round(webcamPixels[index].g,3)}\nB: {Math.Round(webcamPixels[index].b,3)}";
         }
@@ -173,7 +174,7 @@ public class ScreenDetector : MonoBehaviour
 
                 int scan = 0;
                 int scanGood = 0;
-                int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
+                //int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
 
 
                 xOff = i * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
@@ -255,7 +256,7 @@ public class ScreenDetector : MonoBehaviour
                 }
 
                 // Check if enough Pixels have been detected
-                if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer) // Good Scan
+                if (scanGood > (screenWidth * screenHeight * neededScanPercentage)) // Good
                 {
                     // TODO: FILL PICHART
                     scanCompleteMaxValue++;
@@ -306,10 +307,38 @@ public class ScreenDetector : MonoBehaviour
                     yawInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
                 };
 
-                PieChartHandlers[i].TopLeftTracker.anchoredPosition = playerScreens[i].topL;
-                PieChartHandlers[i].TopRightTracker.anchoredPosition = playerScreens[i].topR;
-                PieChartHandlers[i].BottomLeftTracker.anchoredPosition = playerScreens[i].botL;
-                PieChartHandlers[i].BottomRightTracker.anchoredPosition = playerScreens[i].botR;
+
+                //for (int k = 0; k < 4; k++) 
+                //{
+                //    Vector2 targetPoint;
+                //    if (k == 0) targetPoint = playerScreens[i].topL;
+                //    else if (k == 1) targetPoint = playerScreens[i].topR;
+                //    else if (k == 2) targetPoint = playerScreens[i].botL;
+                //    else targetPoint = playerScreens[i].botR;
+
+
+                //    Vector2 localPoint;
+                //    bool success = RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                //        PieChartHandlers[i].CornerRect,
+                //        targetPoint,
+                //        Camera.main,
+                //        out localPoint
+                //    );
+
+                //    if (success)
+                //    {
+                //        if (k == 0) PieChartHandlers[i].TopLeftTracker.anchoredPosition = localPoint;
+                //        else if (k == 1) PieChartHandlers[i].TopRightTracker.anchoredPosition = localPoint;
+                //        else if (k == 2) PieChartHandlers[i].BottomLeftTracker.anchoredPosition = localPoint;
+                //        else PieChartHandlers[i].BottomRightTracker.anchoredPosition = localPoint;
+                //    }
+                //}
+                PieChartHandlers[i].TopLeftTracker.anchoredPosition = (playerScreens[i].topL - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+                PieChartHandlers[i].TopRightTracker.anchoredPosition = (playerScreens[i].topR - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+                PieChartHandlers[i].BottomLeftTracker.anchoredPosition = (playerScreens[i].botL - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY)); // * new Vector2(-1, 1) in case of flipping
+                PieChartHandlers[i].BottomRightTracker.anchoredPosition = (playerScreens[i].botR - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+                //PieChartHandlers[i].BottomLeftTracker.anchoredPosition = (new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY) - playerScreens[i].botL); // * new Vector2(-1, 1) in case of flipping
+                //PieChartHandlers[i].BottomRightTracker.anchoredPosition = (new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY) - playerScreens[i].botR);
 
                 PieChartHandlers[i].rotInputValue.text = playerInputs[i].rotInput.ToString();
                 PieChartHandlers[i].tiltInputValue.text = playerInputs[i].tiltInput.ToString();
@@ -439,6 +468,8 @@ public class ScreenDetector : MonoBehaviour
                 float PlayerScreenHeightMax = 0;
                 bool isOnEdge = false;
 
+                int scan = 0; 
+
                 // Second pass: loop over cropped region and set green where red was
                 for (int x = playerScreens[i].scanFrameMinX; x <= playerScreens[i].scanFrameMaxX; x++)
                 {
@@ -454,6 +485,8 @@ public class ScreenDetector : MonoBehaviour
                             }
                             else
                             {
+                                //Debug.Log("Scan Good: " + pixel);
+                                //yield return new WaitForSeconds(.5f);
                                 scanGood++;
 
                                 // TODO: ADD MINX&Y & MAXX&Y TO PLAYER ARRAY | SET SCREEN SIZE & RATIO!
@@ -481,9 +514,12 @@ public class ScreenDetector : MonoBehaviour
                         {
                             PlayerScreenHeightMax = PlayerScreenHeightCurrent;
                         }
-                        //scan++;
+                        scan++;
                     }
                 }
+
+                outputTexture.SetPixels(resultPixels);
+                outputTexture.Apply();
 
                 //Debug.Log("Good Scan for Player: " + i + " - " + scanGood);
                 //Debug.Log("Scan entire Arean|good pixels: " + scan + "|" + scanGood);
