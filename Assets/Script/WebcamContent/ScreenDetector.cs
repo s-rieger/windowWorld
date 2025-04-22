@@ -142,12 +142,13 @@ public class ScreenDetector : MonoBehaviour
             uiHeight = webcamTexture.height;
 
             int targetHeight = uiHeight / 2 + 300;
-            int targetWidth = uiWidth / 2;
+            int targetWidth = uiWidth / 2 - 200;
+            int targetWidthAnchor = uiWidth / 2 + 200;
 
             int index = (targetHeight * uiWidth) + targetWidth;
 
             //targetPixelAnalysis.localScale = new Vector3(-1, 1, 1);
-            targetPixelAnalysis.anchoredPosition = new Vector2(targetWidth, targetHeight); // x,y flipped?!
+            targetPixelAnalysis.anchoredPosition = new Vector2(targetWidthAnchor, targetHeight); // x,y flipped?!
 
             targetPixelAnalysisText.text = $"R: {Math.Round(webcamPixels[index].r, 3)}\nG: {Math.Round(webcamPixels[index].g,3)}\nB: {Math.Round(webcamPixels[index].b,3)}";
         }
