@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Beetle.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Beetle.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene/NavMesh-NavMeshAI.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene/NavMesh-NavMeshAI.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Collectables/OrbCollectableHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Collectables/OrbCollectableHandler.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +60,7 @@
     <hideBySeverity>
       <option value="11" />
       <option value="15" />
+      <option value="20" />
       <option value="300" />
     </hideBySeverity>
   </component>
@@ -122,6 +126,7 @@
       <workItem from="1745148926579" duration="2746000" />
       <workItem from="1745165120308" duration="1187000" />
       <workItem from="1745173400014" duration="1726000" />
+      <workItem from="1745260813762" duration="768000" />
     </task>
     <servers />
   </component>
