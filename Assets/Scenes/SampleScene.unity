@@ -1388,7 +1388,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d470d1e8593cc8444ab7e51b3e271a24, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1718,7 +1718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0c208dae634250745a429eb24917138f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2270,6 +2270,26 @@ PrefabInstance:
     - target: {fileID: 2808706893143362643, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
       propertyPath: m_Name
       value: Beetle
+      objectReference: {fileID: 0}
+    - target: {fileID: 5586542558597323438, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.68138963
+      objectReference: {fileID: 0}
+    - target: {fileID: 5586542558597323438, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.18896611
+      objectReference: {fileID: 0}
+    - target: {fileID: 5586542558597323438, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.68138963
+      objectReference: {fileID: 0}
+    - target: {fileID: 5586542558597323438, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.18896611
+      objectReference: {fileID: 0}
+    - target: {fileID: 5586542558597323438, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -31
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2739147219717209610, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
