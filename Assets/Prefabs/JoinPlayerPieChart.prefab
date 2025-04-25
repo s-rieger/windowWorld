@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 4782301433049430223}
   - component: {fileID: 2487104344019879917}
   m_Layer: 5
-  m_Name: yawValue
+  m_Name: LeftRightValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -714,7 +714,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'tilt:'
+  m_text: 'Up/Down:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -796,7 +796,7 @@ GameObject:
   - component: {fileID: 4639352557856085269}
   - component: {fileID: 8076188566308215600}
   m_Layer: 5
-  m_Name: yawInput
+  m_Name: tiltLeftRightInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -843,7 +843,7 @@ GameObject:
   - component: {fileID: 4795432015724811242}
   - component: {fileID: 7641262155809721499}
   m_Layer: 5
-  m_Name: tiltValue
+  m_Name: UpDownValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1166,7 +1166,7 @@ GameObject:
   - component: {fileID: 7298332824495350568}
   - component: {fileID: 7135182056141834378}
   m_Layer: 5
-  m_Name: tiltInput
+  m_Name: tiltUpDownInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2058,8 +2058,8 @@ MonoBehaviour:
   infoText: {fileID: 5295345011911446718}
   InputDebug: {fileID: 1592844390668144329}
   rotInputValue: {fileID: 1850874751109799122}
-  tiltInputValue: {fileID: 7641262155809721499}
-  yawInputValue: {fileID: 2487104344019879917}
+  tiltUDInputValue: {fileID: 7641262155809721499}
+  tiltLRInputValue: {fileID: 2487104344019879917}
   CornerTrackers: {fileID: 761971640103444431}
   CornerRect: {fileID: 7431642451475572326}
   TopLeftTracker: {fileID: 2111840992984296777}
@@ -2316,7 +2316,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'yaw:'
+  m_text: 'Left/Right:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

@@ -12,8 +12,8 @@ public class PieChartHandler : MonoBehaviour
     [Header("Input")]
     public GameObject InputDebug;
     public TextMeshProUGUI rotInputValue;
-    public TextMeshProUGUI tiltInputValue;
-    public TextMeshProUGUI yawInputValue;
+    public TextMeshProUGUI tiltUDInputValue;
+    public TextMeshProUGUI tiltLRInputValue;
 
     [Header("Tracker")]
     public GameObject CornerTrackers;

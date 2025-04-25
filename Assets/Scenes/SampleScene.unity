@@ -791,6 +791,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f9bd4e3885f4bd40a9521de4c9dd38c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &652199489
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 652199490}
+  m_Layer: 0
+  m_Name: CellPhone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &652199490
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652199489}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &698581443
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1004,7 +1035,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &712116495
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1013,7 +1044,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712116494}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1091,17 +1122,17 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 770369096}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalPosition: {x: 0, y: 0, z: -600}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1198900825}
   m_Father: {fileID: 972972581}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: 100, y: 40}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -280, y: -60}
+  m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &770369098
 MonoBehaviour:
@@ -2612,7 +2643,7 @@ MonoBehaviour:
   p6: {r: 0, g: 1, b: 0.98984313, a: 1}
   traceActive: 0
   scanActive: 0
-  scanCompleteMaxValue: 5
+  scanCompleteMaxValue: 30
   neededScanPercentage: 0.001
   screenWidth: 200
   screenHeight: 300
@@ -2620,7 +2651,9 @@ MonoBehaviour:
   yOff: 700
   newPlayerOffset: 0
   xSpacing: 100
-  stopScanningTimeThreshold: 0.1
+  stopScanningTimeThreshold: 5
+  pixelBufferCentered: 50
+  pixelBufferTilt: 10
   windowCoverHandlers:
   - {fileID: 818858160}
   - {fileID: 1562096501}
@@ -3083,3 +3116,4 @@ SceneRoots:
   - {fileID: 1425758245768606465}
   - {fileID: 4582228380498373662}
   - {fileID: 3076883754090162350}
+  - {fileID: 652199490}

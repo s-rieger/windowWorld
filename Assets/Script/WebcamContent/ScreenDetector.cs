@@ -7,6 +7,7 @@ using System;
 using static ScreenDetector;
 using TMPro;
 using NUnit.Framework;
+using Unity.VisualScripting;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -57,8 +58,8 @@ public class ScreenDetector : MonoBehaviour
     {
         //public Vector2 rotInput;
         public float rotInput;
-        public float tiltInput;
-        public float yawInput;
+        public float tiltUpDownInput;
+        public float tiltLeftRightInput;
     }
     List<PlayerInput> playerInputs = new(6);
 
@@ -87,6 +88,9 @@ public class ScreenDetector : MonoBehaviour
     Coroutine scanCoroutine;
     Coroutine traceCoroutine;
     [SerializeField] private float stopScanningTimeThreshold = 10;
+    [SerializeField] private float pixelBufferCentered = 10;
+    [SerializeField] private float pixelBufferTiltUpDown = 20;
+    [SerializeField] private float pixelBufferTiltLeftRight = 20;
 
     [Header("Window Covers")]
     [SerializeField] private List<WindowCoverHandler> windowCoverHandlers = new List<WindowCoverHandler>(6);
@@ -111,6 +115,7 @@ public class ScreenDetector : MonoBehaviour
             playerScreenScanProcess.Add(default(int));
             playerInputs.Add(default(PlayerInput));
             PieChartHandlers.Add(default(PieChartHandler));
+            PlayerHandlers.Add(default(PlayerHandler));
         }
 
         webcamRect.localScale = new Vector3(-1, 1, 1);
@@ -220,6 +225,9 @@ public class ScreenDetector : MonoBehaviour
                             if(x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
                             {
                                 isOnEdge = true;
+                                PieChartHandlers[i].infoText.text = "Too close \nto Edge";
+                                PieChartHandlers[i].CornerTrackers.SetActive(false);
+                                continue;
                             }
                             else
                             {
@@ -286,30 +294,96 @@ public class ScreenDetector : MonoBehaviour
 
 
                 PlayerScreen ps = playerScreens[i];
-                if (playerMinYVec.x < playerMaxYVec.x) // turned Right
+
+                Debug.Log("playerMinXVec: " + playerMinXVec);
+                Debug.Log("playerMaxXVec: " + playerMaxXVec);
+                Debug.Log("playerMinYVec: " + playerMinYVec);
+                Debug.Log("playerMaxYVec: " + playerMaxYVec);
+
+                float rotInputTest = 0;
+
+                if((playerMinXVec.y <= playerMaxXVec.y + pixelBufferCentered && playerMinXVec.y >= playerMaxXVec.y - pixelBufferCentered) ||
+                    Vector2.Distance(playerMaxXVec, playerMinYVec) < 30 ||
+                    Vector2.Distance(playerMaxXVec, playerMaxYVec) < 30 ||
+                    Vector2.Distance(playerMinXVec, playerMinYVec) < 30 ||
+                    Vector2.Distance(playerMinXVec, playerMaxYVec) < 30)
+                    // More or less centered
+                {
+                    ps.botL = new Vector2(playerMinXVec.x, playerMinYVec.y);
+                    ps.botR = new Vector2(playerMaxXVec.x, playerMinYVec.y);
+                    ps.topR = new Vector2(playerMaxXVec.x, playerMaxYVec.y);
+                    ps.topL = new Vector2(playerMinXVec.x, playerMaxYVec.y);
+                    Debug.Log("Is Centered");
+                    rotInputTest = 0;
+                }
+                else if (playerMinYVec.x < playerMaxYVec.x) // turned Right
                 {
                     ps.botL = playerMinYVec;
                     ps.topR = playerMaxYVec;
                     ps.topL = playerMinXVec;
                     ps.botR = playerMaxXVec;
-                } 
+                    Debug.Log("Is Truend Right");
+                    rotInputTest = 1;
+
+                }
                 else // turned left
                 {
                     ps.botR = playerMinYVec;
                     ps.topL = playerMaxYVec;
                     ps.botL = playerMinXVec;
                     ps.topR = playerMaxXVec;
+                    Debug.Log("Is Truend Left");
+                    rotInputTest = -1;
                 }
                 playerScreens[i] = ps; // Assign the modified copy back
 
-                playerInputs[i] = new PlayerInput
+                float tiltLeftRightTmp = 0;
+                if(Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) < Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL))
+                {
+                    tiltLeftRightTmp = 1;
+
+                }
+                else if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) > Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL))
+                {
+                    tiltLeftRightTmp = -1;
+                }
+                else
+                {
+                    tiltLeftRightTmp = 0;
+                }
+
+                float tiltUpDownTmp = 0;
+                if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) < Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL))
+                {
+                    tiltUpDownTmp = 1;
+
+                }
+                else if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) > Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL))
+                {
+                    tiltUpDownTmp = -1;
+                }
+                else
+                {
+                    tiltUpDownTmp = 0;
+                }
+
+
+                PlayerInput tmpInput = new PlayerInput
                 {
                     //rotInput = (playerScreens[i].topL - playerScreens[i].topR).normalized,
-                    rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
-                    tiltInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
-                    yawInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
+                    //rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
+                    rotInput = rotInputTest,
+                    //tiltInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
+                    //tiltLeftRightInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR) < playerScreens[i].width + pixelBufferTiltLeftRight ? 1 : 0,
+                    //tiltLeftRightInput = Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) < Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL) ? 1 : 0,
+                    tiltLeftRightInput = tiltLeftRightTmp,
+                    //yawInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
+                    //tiltUpDownInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL) < playerScreens[i].height + pixelBufferTiltUpDown ? 1 : 0,
+                    tiltUpDownInput = tiltUpDownTmp,
                 };
 
+                playerInputs[i] = tmpInput;
+                PlayerHandlers[i].thisPlayerInput = tmpInput;
 
                 //for (int k = 0; k < 4; k++) 
                 //{
@@ -344,8 +418,8 @@ public class ScreenDetector : MonoBehaviour
                 //PieChartHandlers[i].BottomRightTracker.anchoredPosition = (new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY) - playerScreens[i].botR);
 
                 PieChartHandlers[i].rotInputValue.text = Math.Round(playerInputs[i].rotInput, 2).ToString();
-                PieChartHandlers[i].tiltInputValue.text = Math.Round(playerInputs[i].tiltInput, 2).ToString();
-                PieChartHandlers[i].yawInputValue.text = Math.Round(playerInputs[i].yawInput, 2).ToString();
+                PieChartHandlers[i].tiltUDInputValue.text = Math.Round(playerInputs[i].tiltUpDownInput, 2).ToString();
+                PieChartHandlers[i].tiltLRInputValue.text = Math.Round(playerInputs[i].tiltLeftRightInput, 2).ToString();
 
                 i++;
             }
@@ -471,6 +545,7 @@ public class ScreenDetector : MonoBehaviour
                 float PlayerScreenHeightMax = 0;
 
                 bool isOnEdge = false;
+                // TODO: ADD BOOLEAN TO SKIP FOR LOOP IF ON EDGE 
 
                 // Second pass: loop over cropped region and set green where red was
                 for (int x = playerScreens[i].scanFrameMinX; x <= playerScreens[i].scanFrameMaxX; x++)
@@ -484,6 +559,8 @@ public class ScreenDetector : MonoBehaviour
                             if (x == playerScreens[i].scanFrameMinX || x == playerScreens[i].scanFrameMaxX || y == playerScreens[i].scanFrameMinY || y == playerScreens[i].scanFrameMaxY)
                             {
                                 isOnEdge = true;
+                                PieChartHandlers[i].infoText.text = "Too close \nto Edge";
+                                continue;
                             }
                             else
                             {
@@ -537,16 +614,13 @@ public class ScreenDetector : MonoBehaviour
                     continue;
                 }
 
-                if (scanGood > (screenWidth * screenHeight * neededScanPercentage)) // Good Scan
-                {
-                    // TODO: FILL PICHART
-                    playerScreenScanProcess[i]++;
-                    PieChartHandlers[i].infoText.text = "";
-                }
-                else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
+                if (scanGood < (screenWidth * screenHeight * neededScanPercentage)) // Bad Scan
                 {
                     playerScreenScanProcess[i] = 0;
                     PieChartHandlers[i].infoText.text = "Unable to \ndetect screen";
+
+                    if (stopScanningCoroutine == null) { stopScanningCoroutine = StartCoroutine(StopScanningCoroutine()); }
+
 
                     for (int x = playerScreens[i].scanFrameMinX; x <= playerScreens[i].scanFrameMaxX; x++)
                     {
@@ -558,12 +632,39 @@ public class ScreenDetector : MonoBehaviour
                         }
                     }
                 }
+                else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Good Scan
+                {
+                    // TODO: FILL PICHART
+                    playerScreenScanProcess[i]++;
+                    PieChartHandlers[i].infoText.text = "";
+                    PlayerScreen tmp = playerScreens[i];
+                    tmp.height += playerMaxY - playerMinY;
+                    tmp.width += playerMaxX - playerMinX;
+                    tmp.ratio += tmp.height / tmp.width;
+                    playerScreens[i] = tmp;
+
+
+                    if (stopScanningCoroutine != null) { StopCoroutine(stopScanningCoroutine); } // Stops stopScanCoro if available  
+                }
 
                 float fillPercentage = (float)playerScreenScanProcess[i] / (float)scanCompleteMaxValue;
 
                 if (fillPercentage >= 1)
                 {
+
+
                     PlayerScreen tmp = playerScreens[i];
+                    Debug.Log("++++++++++++++++");
+                    Debug.Log("PlayerSCreenHeightMax: " + PlayerScreenHeightMax);
+                    Debug.Log("PlayerSCreenWIdthMax: " + PlayerScreenWidthMax);
+                    Debug.Log("PlayerSCreenHeightMax/Width Ratio: " + PlayerScreenHeightMax / PlayerScreenWidthMax);
+                    Debug.Log("tmp.height.norm " + tmp.height/ scanCompleteMaxValue);
+                    Debug.Log("tmp.width.norm " + tmp.width/ scanCompleteMaxValue);
+                    Debug.Log("tmp.ratio.norm " + tmp.ratio/ scanCompleteMaxValue);
+                    Debug.Log("++++++++++++++++");
+
+
+
                     tmp.isCurrentlyActive = true;
                     tmp.topL = new Vector2(playerMaxX, playerMaxY); // playerMinX, // playerMaxX
                     tmp.topR = new Vector2(playerMinX, playerMinY); // playerMinX, // playerMinY
@@ -571,28 +672,34 @@ public class ScreenDetector : MonoBehaviour
                     tmp.botR = new Vector2(playerMaxX, playerMinY); // playerMinX// playerMaxY
                     tmp.minMin = Vector2.zero;
                     tmp.maxMax = Vector2.zero;
-                    tmp.height = PlayerScreenHeightMax;
-                    tmp.width = PlayerScreenWidthMax;
-                    tmp.ratio = PlayerScreenWidthMax / PlayerScreenHeightMax;
+                    //tmp.height = PlayerScreenHeightMax;
+                    //tmp.width = PlayerScreenWidthMax;
+                    //tmp.ratio = PlayerScreenWidthMax / PlayerScreenHeightMax;
+                    tmp.height = tmp.height / scanCompleteMaxValue;
+                    tmp.width = tmp.width/ scanCompleteMaxValue;
+                    tmp.ratio = tmp.ratio/ scanCompleteMaxValue;
                     playerScreens[i] = tmp;
 
                     PieChartHandlers[i].infoText.text = "ready";
 
                     PlayerInput tmpInput = playerInputs[i];
                     tmpInput.rotInput = 0;
-                    tmpInput.tiltInput = 0;
-                    tmpInput.yawInput = 0;
+                    tmpInput.tiltUpDownInput = 0;
+                    tmpInput.tiltLeftRightInput = 0;
                     playerInputs[i] = tmpInput;
 
                     GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
                     newPlayer.transform.localPosition = new Vector3(i*-180,0,0);
+
                     PlayerHandler newPlayerHandler = newPlayer.GetComponent<PlayerHandler>();
                     newPlayerHandler.PlayerColor = colorList[i];
-                    PlayerHandlers.Add(newPlayerHandler);
+                    newPlayerHandler.playerIndex = i;
+                    newPlayerHandler.thisPlayerInput = tmpInput;
+                    PlayerHandlers[i] = newPlayerHandler;
 
                     PieChartHandlers[i].FillScanProgress(1);
-                    if (stopScanningCoroutine != null) {StopCoroutine(stopScanningCoroutine); }
 
+                    if (stopScanningCoroutine != null) {StopCoroutine(stopScanningCoroutine); }
                     stopScanningCoroutine = StartCoroutine(StopScanningCoroutine());
                 }
                 else
@@ -615,7 +722,7 @@ public class ScreenDetector : MonoBehaviour
         while(timer < stopScanningTimeThreshold)
         {
             timer += .1f;
-            Debug.Log("Stop Scan in: " + (stopScanningTimeThreshold - timer));
+            //Debug.Log("Stop Scan in: " + (stopScanningTimeThreshold - timer));
             yield return new WaitForSeconds(.1f);
         }
 
