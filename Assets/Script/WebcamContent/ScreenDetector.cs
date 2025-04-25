@@ -6,6 +6,7 @@ using UnityEditor;
 using System;
 using static ScreenDetector;
 using TMPro;
+using NUnit.Framework;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -50,7 +51,7 @@ public class ScreenDetector : MonoBehaviour
         public float ratio;
         public bool isCurrentlyActive;
     }
-    List<PlayerScreen> playerScreens = new List<PlayerScreen>(6);
+    List<PlayerScreen> playerScreens = new(6);
 
     public struct PlayerInput
     {
@@ -59,7 +60,7 @@ public class ScreenDetector : MonoBehaviour
         public float tiltInput;
         public float yawInput;
     }
-    List<PlayerInput> playerInputs = new List<PlayerInput>(6);
+    List<PlayerInput> playerInputs = new(6);
 
     [Header("Colors")]
     public List<Color> colorList = new List<Color>(6);
@@ -87,6 +88,9 @@ public class ScreenDetector : MonoBehaviour
     Coroutine traceCoroutine;
     [SerializeField] private float stopScanningTimeThreshold = 10;
 
+    [Header("Window Covers")]
+    [SerializeField] private List<WindowCoverHandler> windowCoverHandlers = new List<WindowCoverHandler>(6);
+
     [Header("References")]
     public RectTransform rt;
     public static ScreenDetector Instance;
@@ -102,6 +106,13 @@ public class ScreenDetector : MonoBehaviour
 
     void Start()
     {
+        for (int i = 0; i < 6; i++) {
+            playerScreens.Add(default(PlayerScreen));
+            playerScreenScanProcess.Add(default(int));
+            playerInputs.Add(default(PlayerInput));
+            PieChartHandlers.Add(default(PieChartHandler));
+        }
+
         webcamRect.localScale = new Vector3(-1, 1, 1);
         playRect.localScale = new Vector3(-1, 1, 1);
 
@@ -125,10 +136,9 @@ public class ScreenDetector : MonoBehaviour
         resultDisplay.texture = outputTexture;
 
         JoinBtn.onClick.AddListener(() => { JoinPlayer(); });
-        //InvokeRepeating(nameof(ProcessFrame), 1f, 0.1f); // Process 10 times a second
         ClearScreen();
 
-        //StartCoroutine(PixelValueDebug());
+        StartCoroutine(PixelValueDebug());
     }
 
     IEnumerator PixelValueDebug()
@@ -161,7 +171,6 @@ public class ScreenDetector : MonoBehaviour
         {
             yield return new WaitForSeconds(.2f);
 
-            Debug.Log("Tracing Players");
             webcamPixels = webcamTexture.GetPixels();
             resultPixels = new Color[webcamPixels.Length];
 
@@ -178,12 +187,6 @@ public class ScreenDetector : MonoBehaviour
 
 
                 xOff = i * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
-
-                //int padding = 50;         // Expand bounds by 50 pixels
-                //int currentFrameMinX = Mathf.Max(0, xOff - padding);
-                //int currentFrameMaxX = Mathf.Min(uiWidth - 1, xOff + screenWidth + padding);
-                //int currentFrameMinY = Mathf.Max(0, yOff - padding);
-                //int currentFrameMaxY = Mathf.Min(uiHeight - 1, yOff + screenHeight + padding);
 
                 int playerMinX = playerScreens[i].scanFrameMaxX;
                 int playerMaxX = playerScreens[i].scanFrameMinX;
@@ -340,9 +343,9 @@ public class ScreenDetector : MonoBehaviour
                 //PieChartHandlers[i].BottomLeftTracker.anchoredPosition = (new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY) - playerScreens[i].botL); // * new Vector2(-1, 1) in case of flipping
                 //PieChartHandlers[i].BottomRightTracker.anchoredPosition = (new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY) - playerScreens[i].botR);
 
-                PieChartHandlers[i].rotInputValue.text = playerInputs[i].rotInput.ToString();
-                PieChartHandlers[i].tiltInputValue.text = playerInputs[i].tiltInput.ToString();
-                PieChartHandlers[i].yawInputValue.text = playerInputs[i].yawInput.ToString();
+                PieChartHandlers[i].rotInputValue.text = Math.Round(playerInputs[i].rotInput, 2).ToString();
+                PieChartHandlers[i].tiltInputValue.text = Math.Round(playerInputs[i].tiltInput, 2).ToString();
+                PieChartHandlers[i].yawInputValue.text = Math.Round(playerInputs[i].yawInput, 2).ToString();
 
                 i++;
             }
@@ -361,7 +364,7 @@ public class ScreenDetector : MonoBehaviour
 
         float angle = Vector2.SignedAngle(Vector2.right, dir);
 
-        Debug.Log("Angle: " + angle);
+        //Debug.Log("Angle: " + angle);
         // angle is 0 at right, positive going counter-clockwise, negative clockwise
 
         if (angle >= 15f && angle <= 60f)
@@ -372,9 +375,9 @@ public class ScreenDetector : MonoBehaviour
             return 0f; // All other directions
     }
 
-    void JoinPlayer()
+    public void JoinPlayer()
     {
-        traceActive = false;
+        //traceActive = false; // So people can continue to play
         scanActive = true;
 
         ClearScreen();
@@ -402,10 +405,12 @@ public class ScreenDetector : MonoBehaviour
 
     IEnumerator ScanJoinArea()
     {
-        int maxPlayerPossible = 6;
-
-        for (int i = 0; i < maxPlayerPossible; i++)
+        for (int i = 0; i < 6; i++)
         {
+            if(playerScreens[i].isCurrentlyActive == true) { Debug.Log("Found ready player: " + i); continue; }
+
+            windowCoverHandlers[i].OpenWindows(i);
+
             xOff = (i * screenWidth) + (i * xSpacing) + xSpacing;
             
             // TODO: MAKE THIS DYNAMIC!!!
@@ -415,28 +420,24 @@ public class ScreenDetector : MonoBehaviour
             int currentFrameMinY = Mathf.Max(0, yOff);
             int currentFrameMaxY = Mathf.Min(uiHeight - 1, yOff + screenHeight);
 
-            if (playerScreens.Count < i+1)
+            PlayerScreen newPlayerScreen = new PlayerScreen
             {
-                PlayerScreen newPlayerScreen = new PlayerScreen
-                {
-                    scanFrameMaxX = currentFrameMaxX,
-                    scanFrameMinX = currentFrameMinX,
-                    scanFrameMaxY = currentFrameMaxY,
-                    scanFrameMinY = currentFrameMinY,
-                    isCurrentlyActive = false
-                };
-                playerScreens.Add(newPlayerScreen);
-
-                playerScreenScanProcess.Add(0);
-                playerInputs.Add(new PlayerInput());
-
-            }
+                scanFrameMaxX = currentFrameMaxX,
+                scanFrameMinX = currentFrameMinX,
+                scanFrameMaxY = currentFrameMaxY,
+                scanFrameMinY = currentFrameMinY,
+                isCurrentlyActive = false
+            };
+            playerScreens[i] = newPlayerScreen;
+            playerScreenScanProcess[i] = 0;
+            playerInputs[i] = new PlayerInput();
 
             // Instantiate new Scan Progress UI Element and position
             GameObject newScanProgressUIElement = Instantiate(ScanProgressUIElement, ScanProgressContainer);
             PieChartHandler pieChartHandler = newScanProgressUIElement.GetComponent<PieChartHandler>();
             pieChartHandler.pieChartColor = colorList[i];
-            PieChartHandlers.Add(pieChartHandler);
+            PieChartHandlers[i] = pieChartHandler;
+
             RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
             newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - xOff, yOff); // x,y flipped?!
         }
@@ -456,7 +457,9 @@ public class ScreenDetector : MonoBehaviour
             {
                 if(playerScreens[i].isCurrentlyActive == true) { continue; }
 
+                int scan = 0; 
                 int scanGood = 0;
+
                 int playerMinX = playerScreens[i].scanFrameMaxX;
                 int playerMaxX = playerScreens[i].scanFrameMinX;
                 int playerMinY = playerScreens[i].scanFrameMaxY;
@@ -466,9 +469,8 @@ public class ScreenDetector : MonoBehaviour
                 int PlayerScreenHeightCurrent;
                 float PlayerScreenWidthMax = 0;
                 float PlayerScreenHeightMax = 0;
-                bool isOnEdge = false;
 
-                int scan = 0; 
+                bool isOnEdge = false;
 
                 // Second pass: loop over cropped region and set green where red was
                 for (int x = playerScreens[i].scanFrameMinX; x <= playerScreens[i].scanFrameMaxX; x++)
@@ -557,7 +559,9 @@ public class ScreenDetector : MonoBehaviour
                     }
                 }
 
-                if(playerScreenScanProcess[i] >= scanCompleteMaxValue)
+                float fillPercentage = (float)playerScreenScanProcess[i] / (float)scanCompleteMaxValue;
+
+                if (fillPercentage >= 1)
                 {
                     PlayerScreen tmp = playerScreens[i];
                     tmp.isCurrentlyActive = true;
@@ -586,189 +590,23 @@ public class ScreenDetector : MonoBehaviour
                     newPlayerHandler.PlayerColor = colorList[i];
                     PlayerHandlers.Add(newPlayerHandler);
 
-
+                    PieChartHandlers[i].FillScanProgress(1);
                     if (stopScanningCoroutine != null) {StopCoroutine(stopScanningCoroutine); }
 
                     stopScanningCoroutine = StartCoroutine(StopScanningCoroutine());
                 }
+                else
+                {
+                    PieChartHandlers[i].FillScanProgress(fillPercentage);
+                }
 
-                float fillPercentage = (float)playerScreenScanProcess[i] / (float)scanCompleteMaxValue;
-                PieChartHandlers[i].FillScanProgress(fillPercentage);
+
             }
 
 
             outputTexture.SetPixels(resultPixels);
             outputTexture.Apply();
         }
-
-        //xOff = currentPlayers * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd... players
-
-        //// Padding around Player Area
-        //// TODO: MAKE THIS DYNAMIC!!!
-        //int padding = 0;         // Expand bounds by 50 pixels
-        //int currentFrameMinX = Mathf.Max(0, xOff - padding);
-        //int currentFrameMaxX = Mathf.Min(uiWidth - 1, xOff + screenWidth + padding);
-        //int currentFrameMinY = Mathf.Max(0, yOff - padding);
-        //int currentFrameMaxY = Mathf.Min(uiHeight - 1, yOff + screenHeight + padding);
-
-        //// SCan Progress UI Element
-        //GameObject newScanProgressUIElement = Instantiate(ScanProgressUIElement, ScanProgressContainer);
-        //PieChartHandler pieChartHandler = newScanProgressUIElement.GetComponent<PieChartHandler>();
-        //pieChartHandler.pieChartColor = colorList[currentPlayers];
-        //PieChartHandlers.Add(pieChartHandler);
-
-        //RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
-        //newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - xOff, yOff); // x,y flipped?!
-        ////newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - padding, uiHeight - screenHeight - padding); // x,y flipped?!
-        ////newScanProgressRectTransform.anchoredPosition = new Vector2(screenWidth - xOff, screenHeight - yOff); // x,y flipped?!
-
-        //int playerMinX = currentFrameMaxX;
-        //int playerMaxX = currentFrameMinX;
-        //int playerMinY = currentFrameMaxY;
-        //int playerMaxY = currentFrameMinY;
-
-        //int PlayerScreenWidthCurrent;
-        //int PlayerScreenHeightCurrent;
-        //float PlayerScreenWidthMax = 0;
-        //float PlayerScreenHeightMax = 0;
-
-        //int scan = 0;
-        //int scanGood = 0;
-        //int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
-
-        //while (scanCompleteMaxValue < 100)
-        //{
-        //    yield return new WaitForSeconds(.1f); 
-
-        //    scan = 0;
-        //    scanGood = 0;
-        //    playerMinX = currentFrameMaxX;
-        //    playerMaxX = currentFrameMinX;
-        //    playerMinY = currentFrameMaxY;
-        //    playerMaxY = currentFrameMinY;
-
-
-        //    webcamPixels = webcamTexture.GetPixels();
-        //    resultPixels = new Color[webcamPixels.Length];
-
-        //    uiWidth = webcamTexture.width;
-        //    uiHeight = webcamTexture.height;
-
-        //    // Second pass: loop over cropped region and set green where red was
-        //    for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
-        //    {
-        //        for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
-        //        {
-        //            int index = y * uiWidth + x;
-        //            //Debug.Log("Index: " +  index);
-        //            Color pixel = webcamPixels[index];
-
-        //            if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
-        //            {
-        //                scanGood++;
-        //                resultPixels[index] = colorList[currentPlayers];
-
-        //                // TODO: ADD MINX&Y & MAXX&Y TO PLAYER ARRAY | SET SCREEN SIZE & RATIO!
-        //                if (x < playerMinX) playerMinX = x;
-        //                if (x > playerMaxX) playerMaxX = x;
-        //                if (y < playerMinY) playerMinY = y;
-        //                if (y > playerMaxY) playerMaxY = y;
-        //            }
-        //            else
-        //            {
-        //                resultPixels[index] = Color.clear; // Default transparent
-        //            }
-
-        //            // TODO: CALIBRATING SHOULD NOT OVERWRITE BECAUSE THE CLOSER TO CAMERA, THE MORE PIXELS
-        //            PlayerScreenWidthCurrent = playerMaxX - playerMinX;
-        //            if (PlayerScreenWidthCurrent > PlayerScreenWidthMax){
-        //                PlayerScreenWidthMax = PlayerScreenWidthCurrent;
-        //            }
-        //            PlayerScreenHeightCurrent = playerMaxY - playerMinY;
-        //            if (PlayerScreenHeightCurrent > PlayerScreenHeightMax){
-        //                PlayerScreenHeightMax = PlayerScreenHeightCurrent;
-        //            }
-        //            scan++;
-        //        }
-        //    }
-
-        //    //Debug.Log("Scan entire Arean|good pixels: " + scan + "|" + scanGood);
-        //    if (scanGood > screenWidth * screenHeight - screenScanJoinBuffer) // Good Scan
-        //    {
-        //        // TODO: FILL PICHART
-        //        scanCompleteMaxValue++;
-        //        PieChartHandlers[currentPlayers].infoText.text = "";
-        //    }
-        //    else if(scanGood == screenWidth * screenHeight)
-        //    {
-        //        PieChartHandlers[currentPlayers].infoText.text = "Too close \nto Camera";
-        //    }
-        //    else // TODO: CHECK PERFORMANCE, MIGHT BE UNNECCESARRAADASDASD // Bad Scan
-        //    {
-        //        scanCompleteMaxValue = 0;
-        //        PieChartHandlers[currentPlayers].infoText.text = "Unable to \ndetect screen";
-
-        //        for (int x = currentFrameMinX; x <= currentFrameMaxX; x++)
-        //        {
-        //            for (int y = currentFrameMinY; y <= currentFrameMaxY; y++)
-        //            {
-        //                int index = y * uiWidth + x;
-        //                resultPixels[index] = colorList[currentPlayers];
-        //                resultPixels[index].a = .2f;
-        //            }
-        //        }
-        //    }
-
-        //    PieChartHandlers[currentPlayers].FillScanProgress(scanCompleteMaxValue);
-
-        //    outputTexture.SetPixels(resultPixels);
-        //    outputTexture.Apply();
-
-        //}
-
-        //Debug.Log($"Scan Player {currentPlayers} complete | width: {PlayerScreenWidthMax} | height: {PlayerScreenHeightMax} | ratio: {PlayerScreenWidthMax/ PlayerScreenHeightMax}");
-
-        //scan = 0;
-        //scanGood = 0;
-        //scanCompleteMaxValue = 0;
-        //currentPlayers++;
-
-        //// TODO: HEIGHT, WIDTH & RATIO ARE ALL WRONG!!
-
-        //PlayerScreen newPlayerScreen = new PlayerScreen
-        //{
-        //    topL = new Vector2(playerMaxX, playerMaxY), // playerMinX, // playerMaxX
-        //    topR = new Vector2(playerMinX, playerMinY), // playerMinX, // playerMinY
-        //    botL = new Vector2(playerMinX, playerMaxY), // playerMinX
-        //    botR = new Vector2(playerMaxX, playerMinY), // playerMinX// playerMaxY
-        //    minMin = Vector2.zero,
-        //    maxMax = Vector2.zero,
-        //    height = PlayerScreenHeightMax,
-        //    width = PlayerScreenWidthMax,
-        //    ratio = PlayerScreenWidthMax / PlayerScreenHeightMax
-        //};
-        //playerScreens.Add(newPlayerScreen);
-
-        //PlayerInput newPlayerInput = new PlayerInput
-        //{
-        //    //rotInput = Vector2.zero,
-        //    rotInput = 0,
-        //    yInput = 0,
-        //    zInput = 0
-        //};
-        //playerInputs.Add(newPlayerInput);
-
-
-        //GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
-        //PlayerHandler newPlayerHandler = newPlayer.GetComponent<PlayerHandler>();
-        //newPlayerHandler.PlayerColor = colorList[currentPlayers];
-        //PlayerHandlers.Add(newPlayerHandler);
-
-        //JoinBtn.gameObject.SetActive(true);
-
-        //PieChartHandlers[currentPlayers].infoText.text = "Ready";
-        //yield return new WaitForSeconds(2);
-        //PieChartHandlers[currentPlayers].infoText.text = "";
     }
 
     IEnumerator StopScanningCoroutine()
@@ -786,6 +624,7 @@ public class ScreenDetector : MonoBehaviour
             if (playerScreens[i].isCurrentlyActive == false)
             {
                 PieChartHandlers[i].gameObject.SetActive(false);
+                windowCoverHandlers[i].CloseWindows(i);
             }
             else
             {
@@ -808,103 +647,4 @@ public class ScreenDetector : MonoBehaviour
         JoinBtn.gameObject.SetActive(true);
     }
 
-//    private void OnDrawGizmos()
-//    {
-//        Gizmos.color = Color.white;
-
-//        // Draw spheres at each point
-//        if (currentPlayers == 0) { return; }
-
-
-//        List<Vector2> cornerList = new List<Vector2>(4);
-//        cornerList.Add(playerScreens[0].topL);
-//        cornerList.Add(playerScreens[0].topR);
-//        cornerList.Add(playerScreens[0].botL);
-//        cornerList.Add(playerScreens[0].botR);
-
-//        Vector3 worldPos;
-//        for (int i = 0; i < cornerList.Count; i++) 
-//        { 
-//            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rt, cornerList[i], Camera.main, out worldPos))
-//            {
-//                worldPos = new Vector3(-1 * worldPos.x, 1 * worldPos.y, 1 * worldPos.z); // FLippingx-axis
-//                Gizmos.DrawSphere(worldPos, 10);
-
-////#if UNITY_EDITOR
-//                // Draw labels using Handles
-//                if(i == 0) Handles.Label(worldPos, "Top Left");
-//                else if(i == 1) Handles.Label(worldPos, "Top Right");
-//                else if (i == 2) Handles.Label(worldPos, "Bottom Left");
-//                else if (i == 3) Handles.Label(worldPos, "Bottom Right");
-////#endif
-//            }
-
-
-//        }
-//    }
-
-
-
-
-    void ProcessFrame()
-    {
-        if (!webcamTexture.isPlaying || webcamTexture.width < 10) return;
-
-        webcamPixels = webcamTexture.GetPixels();
-        resultPixels = new Color[webcamPixels.Length];
-
-        uiWidth = webcamTexture.width;
-        uiHeight = webcamTexture.height;
-
-        // Track red pixel bounds
-        int minX = 0, minY = 0, maxX = uiWidth, maxY = uiHeight;
-
-        // First pass: detect red pixels and calculate bounds
-        for (int y = 0; y < uiHeight; y++)
-        {
-            for (int x = 0; x < uiWidth; x++)
-            {
-                int index = y * uiWidth + x;
-                Color pixel = webcamPixels[index];
-
-                if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
-                {
-                    // Update bounds
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
-                }
-
-                resultPixels[index] = Color.clear; // Default transparent
-            }
-        }
-
-       
-
-        // Expand bounds by 50 pixels
-        int padding = 50;
-        minX = Mathf.Max(0, minX - padding);
-        maxX = Mathf.Min(uiWidth - 1, maxX + padding);
-        minY = Mathf.Max(0, minY - padding);
-        maxY = Mathf.Min(uiHeight - 1, maxY + padding);
-
-        // Second pass: loop over cropped region and set green where red was
-        for (int y = minY; y <= maxY; y++)
-        {
-            for (int x = minX; x <= maxX; x++)
-            {
-                int index = y * uiWidth + x;
-                Color pixel = webcamPixels[index];
-
-                if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
-                {
-                    resultPixels[index] = Color.green;
-                }
-            }
-        }
-
-        outputTexture.SetPixels(resultPixels);
-        outputTexture.Apply();
-    }
 }

@@ -22,17 +22,17 @@ public class AttackState : BaseState
             if (distanceToTarget <= model.attackRange)
             {
                 model.StartDash();
-                Debug.Log("Attacking target");
+                //Debug.Log("Attacking target");
             }
             else
             {
-                Debug.Log("Target out of range switching to roaming state");
+                //Debug.Log("Target out of range switching to roaming state");
                 model.ChangeState(model.roamingState);
             }
         }
         else
         {
-            Debug.Log("No target found switching to roaming state");
+            //Debug.Log("No target found switching to roaming state");
             model.ChangeState(model.roamingState);
         }
     }
