@@ -59,7 +59,6 @@ public class RoamingState : BaseState
             {
                 int randomIndex = Random.Range(0, GameManager.instance.targets.Count);
                 model.target = GameManager.instance.targets[randomIndex];    
-                Debug.Log("Attack State");
                 model.ChangeState(model.attackState);
             }
         }

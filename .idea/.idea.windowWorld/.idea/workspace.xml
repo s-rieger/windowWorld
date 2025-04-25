@@ -7,8 +7,9 @@
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene/NavMesh-NavMeshAI.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene/NavMesh-NavMeshAI.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +126,15 @@
       <workItem from="1745165120308" duration="1187000" />
       <workItem from="1745173400014" duration="1726000" />
       <workItem from="1745260813762" duration="768000" />
-      <workItem from="1745346743628" duration="388000" />
+      <workItem from="1745346743628" duration="598000" />
+      <workItem from="1745356226552" duration="1470000" />
+      <workItem from="1745434070326" duration="534000" />
+      <workItem from="1745494798878" duration="2386000" />
+      <workItem from="1745498214149" duration="2041000" />
+      <workItem from="1745503001408" duration="90000" />
+      <workItem from="1745503104100" duration="823000" />
+      <workItem from="1745504907896" duration="1346000" />
+      <workItem from="1745575412868" duration="58000" />
     </task>
     <servers />
   </component>
