@@ -128,7 +128,7 @@ public class ScreenDetector : MonoBehaviour
         //InvokeRepeating(nameof(ProcessFrame), 1f, 0.1f); // Process 10 times a second
         ClearScreen();
 
-        StartCoroutine(PixelValueDebug());
+        //StartCoroutine(PixelValueDebug());
     }
 
     IEnumerator PixelValueDebug()
@@ -808,40 +808,40 @@ public class ScreenDetector : MonoBehaviour
         JoinBtn.gameObject.SetActive(true);
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.white;
+//    private void OnDrawGizmos()
+//    {
+//        Gizmos.color = Color.white;
 
-        // Draw spheres at each point
-        if (currentPlayers == 0) { return; }
-
-
-        List<Vector2> cornerList = new List<Vector2>(4);
-        cornerList.Add(playerScreens[0].topL);
-        cornerList.Add(playerScreens[0].topR);
-        cornerList.Add(playerScreens[0].botL);
-        cornerList.Add(playerScreens[0].botR);
-
-        Vector3 worldPos;
-        for (int i = 0; i < cornerList.Count; i++) 
-        { 
-            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rt, cornerList[i], Camera.main, out worldPos))
-            {
-                worldPos = new Vector3(-1 * worldPos.x, 1 * worldPos.y, 1 * worldPos.z); // FLippingx-axis
-                Gizmos.DrawSphere(worldPos, 10);
-
-//#if UNITY_EDITOR
-                // Draw labels using Handles
-                if(i == 0) Handles.Label(worldPos, "Top Left");
-                else if(i == 1) Handles.Label(worldPos, "Top Right");
-                else if (i == 2) Handles.Label(worldPos, "Bottom Left");
-                else if (i == 3) Handles.Label(worldPos, "Bottom Right");
-//#endif
-            }
+//        // Draw spheres at each point
+//        if (currentPlayers == 0) { return; }
 
 
-        }
-    }
+//        List<Vector2> cornerList = new List<Vector2>(4);
+//        cornerList.Add(playerScreens[0].topL);
+//        cornerList.Add(playerScreens[0].topR);
+//        cornerList.Add(playerScreens[0].botL);
+//        cornerList.Add(playerScreens[0].botR);
+
+//        Vector3 worldPos;
+//        for (int i = 0; i < cornerList.Count; i++) 
+//        { 
+//            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rt, cornerList[i], Camera.main, out worldPos))
+//            {
+//                worldPos = new Vector3(-1 * worldPos.x, 1 * worldPos.y, 1 * worldPos.z); // FLippingx-axis
+//                Gizmos.DrawSphere(worldPos, 10);
+
+////#if UNITY_EDITOR
+//                // Draw labels using Handles
+//                if(i == 0) Handles.Label(worldPos, "Top Left");
+//                else if(i == 1) Handles.Label(worldPos, "Top Right");
+//                else if (i == 2) Handles.Label(worldPos, "Bottom Left");
+//                else if (i == 3) Handles.Label(worldPos, "Bottom Right");
+////#endif
+//            }
+
+
+//        }
+//    }
 
 
 
