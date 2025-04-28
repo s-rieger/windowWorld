@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/Arduino/ArduinoSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/Arduino/ArduinoSetup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/WebcamContent/ScreenDetector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/WebcamContent/ScreenDetector.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,6 +133,9 @@
       <workItem from="1745503104100" duration="823000" />
       <workItem from="1745504907896" duration="1346000" />
       <workItem from="1745575412868" duration="58000" />
+      <workItem from="1745590756309" duration="1894000" />
+      <workItem from="1745852063071" duration="2096000" />
+      <workItem from="1745854222808" duration="51000" />
     </task>
     <servers />
   </component>

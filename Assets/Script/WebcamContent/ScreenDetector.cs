@@ -651,7 +651,7 @@ public class ScreenDetector : MonoBehaviour
 
                 if (fillPercentage >= 1)
                 {
-
+                    ArduinoSetup.instance.SetLedColor("GREEN");
 
                     PlayerScreen tmp = playerScreens[i];
                     Debug.Log("++++++++++++++++");
