@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 
 public class ArduinoSetup : MonoBehaviour
 {
+    public static ArduinoSetup instance;
+    
     SerialPort sp = new SerialPort("COM9", 9600);
     public bool isStreaming = false;
 
@@ -16,6 +18,19 @@ public class ArduinoSetup : MonoBehaviour
     private ConcurrentQueue<string> messageQueue = new ConcurrentQueue<string>();
     private bool isRunning = false;
 
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void OpenConnection()
     {
         if (sp.IsOpen) return;
@@ -25,7 +40,6 @@ public class ArduinoSetup : MonoBehaviour
         sp.Open();
         isStreaming = true;
 
-        // Start the background thread
         isRunning = true;
         serialThread = new Thread(ReadSerialPortInBackground);
         serialThread.Start();
@@ -45,6 +59,7 @@ public class ArduinoSetup : MonoBehaviour
             if (value.StartsWith("ALERT:HighLight"))
             {
                 Debug.Log("High light detected");
+                SetLedColor("RED");
                 screenDetector.JoinPlayer();
             }
         }
@@ -81,6 +96,21 @@ public class ArduinoSetup : MonoBehaviour
             {
                 Debug.LogError("Serial port error: " + ex.Message);
             }
+        }
+    }
+    
+    public void SetLedColor(string colorCommand)
+    {
+        if (!sp.IsOpen) return;
+
+        try
+        {
+            sp.WriteLine(colorCommand);
+            sp.BaseStream.Flush();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Send error: " + ex.Message);
         }
     }
 }

@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/RoamingState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +18,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Script/Collectables/OrbCollectableHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Script/EnemySM/BugAllignHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Script/EnemySM/DeathState.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Script/Managers/GameManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Script/UI/PieChartHandler.cs" root0="FORCE_HIGHLIGHTING" />
@@ -135,6 +133,12 @@
       <workItem from="1745503104100" duration="823000" />
       <workItem from="1745504907896" duration="1346000" />
       <workItem from="1745575412868" duration="58000" />
+      <workItem from="1745590756309" duration="1894000" />
+      <workItem from="1745852063071" duration="2096000" />
+      <workItem from="1745854222808" duration="51000" />
+      <workItem from="1746046847126" duration="306000" />
+      <workItem from="1746049425412" duration="580000" />
+      <workItem from="1746181199579" duration="2847000" />
     </task>
     <servers />
   </component>
