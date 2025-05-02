@@ -48,7 +48,6 @@ public class EnemyStateMachine : MonoBehaviour
     {
         _currentState?.Update();
         debugString = _currentState.ToString();
-        AlignToSurface();
     }
 
     private void InitializeStates()
@@ -96,18 +95,5 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         isDashing = false;
-    }
-    
-    private void AlignToSurface()
-    {
-        Ray ray = new Ray(bug.position, Vector3.down);
-        if (Physics.Raycast(ray, out RaycastHit hit, 2f))
-        {
-            Vector3 surfaceNormal = hit.normal;
-
-            Quaternion targetRotation = Quaternion.FromToRotation(bug.up, surfaceNormal) * bug.rotation;
-
-            bug.rotation = Quaternion.Slerp(bug.rotation, targetRotation, Time.deltaTime * 10f);
-        }
     }
 }
