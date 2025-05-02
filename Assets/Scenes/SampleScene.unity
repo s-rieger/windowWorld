@@ -1044,7 +1044,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712116494}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -50}
+  m_LocalPosition: {x: 0, y: 0, z: -120}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2629,6 +2629,7 @@ MonoBehaviour:
   redThreshold: 0.6
   greenMax: 0.2
   blueMax: 0.2
+  whiteThreshold: 0.3
   grayscaleThreshold: 0.8
   JoinBtn: {fileID: 770369098}
   ScanProgressUIElement: {fileID: 7311784928276361924, guid: 8565fe8b1924eae439e2bb2eab5414e2, type: 3}
@@ -2643,7 +2644,7 @@ MonoBehaviour:
   p6: {r: 0, g: 1, b: 0.98984313, a: 1}
   traceActive: 0
   scanActive: 0
-  scanCompleteMaxValue: 30
+  scanCompleteMaxValue: 1
   neededScanPercentage: 0.001
   screenWidth: 200
   screenHeight: 300
@@ -2651,9 +2652,10 @@ MonoBehaviour:
   yOff: 700
   newPlayerOffset: 0
   xSpacing: 100
-  stopScanningTimeThreshold: 5
+  stopScanningTimeThreshold: 2
   pixelBufferCentered: 50
-  pixelBufferTilt: 10
+  pixelBufferTiltUpDown: 20
+  pixelBufferTiltLeftRight: 20
   windowCoverHandlers:
   - {fileID: 818858160}
   - {fileID: 1562096501}

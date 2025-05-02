@@ -56,7 +56,7 @@ public class PlayerHandler : MonoBehaviour
         // Apply rotation around z-axis
         transform.Rotate(0f, rotationAmount, 0f, Space.Self);
 
-        transform.localPosition = transform.localPosition * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
+        transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
         transform.localScale = Vector3.one * (35 - thisPlayerInput.tiltLeftRightInput * playerStretchSpeed * Time.fixedDeltaTime); 
         #region Use Vec2 for rotattion
         //// Calculate the angle from the input
