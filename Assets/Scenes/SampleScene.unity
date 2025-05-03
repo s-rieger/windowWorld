@@ -3000,6 +3000,14 @@ PrefabInstance:
       propertyPath: bug
       value: 
       objectReference: {fileID: 1466401944}
+    - target: {fileID: 2491790837974456194, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: dashSpeed
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 2491790837974456194, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
+      propertyPath: attackRange
+      value: 2000
+      objectReference: {fileID: 0}
     - target: {fileID: 2739147219717209610, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
       propertyPath: m_UseGravity
       value: 0
@@ -3048,7 +3056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6998853530082446118, guid: c7cfd59873f376f4ea5c98d890e0d126, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -95.6
+      value: -343
       objectReference: {fileID: 0}
     - target: {fileID: 6998853530082446118, guid: c7cfd59873f376f4ea5c98d890e0d126, type: 3}
       propertyPath: m_LocalPosition.y

@@ -20,12 +20,13 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Attack State")]
     public GameObject target;
     public float attackRange;
-
+    public float waitTime;
+    public bool isWaiting = true;
+    
     [Header("Dashing")] 
     public float dashSpeed;
     public float dashDuration;
     public bool isDashing;
-    public float waitTime;
     
     [Header("States")]
     public AttackState attackState;
@@ -64,46 +65,10 @@ public class EnemyStateMachine : MonoBehaviour
         _currentState.Enter();
     }
     
-    public void StartDash()
+    public IEnumerator WaitBeforeNextMove()
     {
-        if (!isDashing)
-        {
-            StartCoroutine(Dash());
-        }
-    }
-
-    private IEnumerator Dash()
-    {
-        isDashing = true;
-        float elapsedTime = 0f;
-
-        Vector3 dashDirection = (target.transform.position - transform.position).normalized;
-        while (elapsedTime < dashDuration)
-        {
-            Debug.Log("Dashing...");
-            float distanceToTarget = Vector3.Distance(bug.position, target.transform.position);
-
-            if (distanceToTarget <= 10f)
-            {
-                Debug.LogWarning("Bug is within the buffer distance to the target.");
-                //Add further logic here for wht to do when attacking the playeer
-            }
-  
-
-            Vector3 moveVector = dashDirection * dashSpeed * Time.deltaTime;
-            agent.transform.LookAt(target.transform.position);
-            agent.Move(moveVector);
-
-            elapsedTime += Time.deltaTime;
-
-            if (elapsedTime >= dashDuration)
-            {
-                break;
-            }
-
-            yield return null;
-        }
-
-        isDashing = false;
+        isWaiting = true;
+        yield return new WaitForSeconds(waitTime);
+        isWaiting = false;
     }
 }
