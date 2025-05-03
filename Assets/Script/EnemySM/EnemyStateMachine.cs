@@ -75,22 +75,32 @@ public class EnemyStateMachine : MonoBehaviour
     private IEnumerator Dash()
     {
         isDashing = true;
-        Debug.Log("Dashing towards target!");
         float elapsedTime = 0f;
 
         Vector3 dashDirection = (target.transform.position - transform.position).normalized;
         while (elapsedTime < dashDuration)
         {
-            float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+            Debug.Log("Dashing...");
+            float distanceToTarget = Vector3.Distance(bug.position, target.transform.position);
 
-            // if (distanceToTarget <= agent.stoppingDistance)
-            // {
-            //     Debug.Log("Reached target during dash.");
-            //     break;
-            // }
+            if (distanceToTarget <= 10f)
+            {
+                Debug.LogWarning("Bug is within the buffer distance to the target.");
+                //Add further logic here for wht to do when attacking the playeer
+            }
+  
 
-            agent.Move(dashDirection * dashSpeed * Time.deltaTime);
+            Vector3 moveVector = dashDirection * dashSpeed * Time.deltaTime;
+            agent.transform.LookAt(target.transform.position);
+            agent.Move(moveVector);
+
             elapsedTime += Time.deltaTime;
+
+            if (elapsedTime >= dashDuration)
+            {
+                break;
+            }
+
             yield return null;
         }
 

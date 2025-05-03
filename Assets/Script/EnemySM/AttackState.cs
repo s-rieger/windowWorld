@@ -40,7 +40,7 @@ public class AttackState : BaseState
     public override void Exit()
     {
         base.Exit();
-        model.target = null;
+        // model.target = null;
     }
     
     
