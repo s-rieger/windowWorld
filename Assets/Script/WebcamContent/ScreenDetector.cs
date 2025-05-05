@@ -8,6 +8,7 @@ using static ScreenDetector;
 using TMPro;
 using NUnit.Framework;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -40,6 +41,7 @@ public class ScreenDetector : MonoBehaviour
     [SerializeField] private Button JoinBtn;
     int uiWidth;
     int uiHeight;
+    int totalPixelAmount = 0;
     public GameObject ScanProgressUIElement;
     public List<PieChartHandler> PieChartHandlers = new List<PieChartHandler>(6);
     public Transform ScanProgressContainer;
@@ -48,6 +50,7 @@ public class ScreenDetector : MonoBehaviour
     {
         public int scanFrameMinX, scanFrameMaxX, scanFrameMinY, scanFrameMaxY;
         public Vector2Int topL, topR, botL, botR, minMin, maxMax;
+        public Vector2Int initTopL, initTopR, initBotL, initBotR;
         public float height;
         public float width;
         public float ratio;
@@ -141,6 +144,13 @@ public class ScreenDetector : MonoBehaviour
         );
         resultDisplay.texture = outputTexture;
 
+        webcamPixels = webcamTexture.GetPixels();
+        uiWidth = webcamTexture.width;
+        uiHeight = webcamTexture.height;
+        totalPixelAmount = uiWidth * uiHeight;
+
+        //Debug.Log("UiWidth, uiHeight, totalPixels: " + uiWidth + ", " + uiHeight + ", " + totalPixelAmount);
+
         JoinBtn.onClick.AddListener(() => { JoinPlayer(); });
         ClearScreen();
 
@@ -172,10 +182,15 @@ public class ScreenDetector : MonoBehaviour
     }
 
     IEnumerator TracePlayers()
-    { 
+    {
         while (traceActive == true)
         {
-            yield return new WaitForSeconds(.2f);
+            if (!playerScreens.Any(x => x.isCurrentlyActive))
+            {
+                Debug.Log("No player active");
+                yield return new WaitForSeconds(1);
+            }
+
 
             webcamPixels = webcamTexture.GetPixels();
             resultPixels = new Color[webcamPixels.Length];
@@ -191,34 +206,15 @@ public class ScreenDetector : MonoBehaviour
 
             for (int i = 0; i < playerScreens.Count; i++)
             {
-                if (playerScreens[i].isCurrentlyActive == false) { continue; }
-
-                //int scan = 0;
-                //int scanGood = 0;
-                //int screenScanJoinBuffer = Mathf.FloorToInt(screenWidth * screenHeight * neededScanPercentage);
-
+                if (playerScreens[i].isCurrentlyActive == false) { continue; } // Debug.Log($"Player:{i} not playing"); 
+                //Debug.Log("Start Tracing for Player: " + i);
 
                 xOff = i * screenWidth + xSpacing; // Adds offset fo 2nd or 3rd player
 
-                //int playerMinX = playerScreens[i].scanFrameMaxX;
-                //int playerMaxX = playerScreens[i].scanFrameMinX;
-                //int playerMinY = playerScreens[i].scanFrameMaxY;
-                //int playerMaxY = playerScreens[i].scanFrameMinY;
-
-                //Vector2Int playerMinXVec = new Vector2Int();
-                //Vector2Int playerMaxXVec = new Vector2Int();
-                //Vector2Int playerMinYVec = new Vector2Int();
-                //Vector2Int playerMaxYVec = new Vector2Int();
-
-                //int PlayerScreenWidthCurrent;
-                //int PlayerScreenHeightCurrent;
-                //float PlayerScreenRatioCurrent;
-                //float PlayerScreenRatioMax = 0;
-                //float PlayerScreenWidthMax = 0;
-                //float PlayerScreenHeightMax = 0;
-
                 // GET PLAYER SCREEN OBJECT
                 PlayerScreen ps = playerScreens[i];
+                bool isOutOfBounds = false;
+                int maxAdditionalScans = 3;
 
                 // TOP LEFT TRACKER
                 missScans = 0;
@@ -226,34 +222,49 @@ public class ScreenDetector : MonoBehaviour
                 yHit = playerScreens[i].topL.y - pixelRange;
                 xHit = playerScreens[i].topL.x + pixelRange;
                 bool isTopLSearching = true;
+
                 while (isTopLSearching)
                 {
-                    for(int y = playerScreens[i].topL.y - pixelRange; y < playerScreens[i].topL.y + pixelRange; y++)
+                    for (int y = playerScreens[i].topL.y - pixelRange; y < playerScreens[i].topL.y + pixelRange; y++)
                     {
                         for (int x = playerScreens[i].topL.x - pixelRange; x < playerScreens[i].topL.x + pixelRange; x++)
                         {
                             int index = y * uiWidth + x;
+                            if (index >= totalPixelAmount || index < 0) {continue; }
+   
                             pixel = webcamPixels[index];
 
                             if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                             {
-                                //Debug.Log("Found Top LeftPixel");
                                 if (y > yHit) yHit = y;
                                 if (x < xHit) xHit = x;
                             }
                         }
                     }
-                    if (missScans > 5) { isTopLSearching = false; }
 
-                    if (yHit == playerScreens[i].topL.y || xHit == playerScreens[i].topL.x) { pixelRange += 10; missScans++; Debug.Log("Missed Top LeftPixel"); } //Debug.Log("Missed Top LeftPixel");
-                    else { isTopLSearching = false; ps.topL = new Vector2Int(xHit, yHit); }
+                    if (xHit < playerScreens[i].scanFrameMinX || xHit > playerScreens[i].scanFrameMaxX || 
+                        yHit < playerScreens[i].scanFrameMinY || yHit > playerScreens[i].scanFrameMaxY)
+                    {
+                        isOutOfBounds = true;
+                    }
+                    else
+                    {
+                        ps.topL = new Vector2Int(xHit, yHit);
+                        isTopLSearching = false;
+                    }
+
+                    if (isTopLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++;}
+                    else if (isOutOfBounds == true || missScans > maxAdditionalScans) { ps.isCurrentlyActive = false; playerScreens[i] = ps; StartCoroutine(OutOfBoundsCorrection(i)); break; }
                 }
+
+                if (ps.isCurrentlyActive == false) { continue; } // Skips the iteration for the current player
+
 
                 // TOP RIGHT TRACKER
                 missScans = 0;
                 pixelRange = 10;
-                yHit = playerScreens[i].botL.y - pixelRange;
-                xHit = playerScreens[i].botL.x - pixelRange;
+                yHit = playerScreens[i].topR.y - pixelRange;
+                xHit = playerScreens[i].topR.x - pixelRange;
                 bool isTopRSearching = true;
                 while (isTopRSearching)
                 {
@@ -262,26 +273,43 @@ public class ScreenDetector : MonoBehaviour
                         for (int x = playerScreens[i].topR.x - pixelRange; x < playerScreens[i].topR.x + pixelRange; x++)
                         {
                             int index = y * uiWidth + x;
+                            if (index > totalPixelAmount) { continue; }
+
                             pixel = webcamPixels[index];
 
                             if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                             {
                                 if (y > yHit) yHit = y;
                                 if (x > xHit) xHit = x;
+                                isTopRSearching = false;
                             }
                         }
                     }
-                    if (missScans > 5) { isTopRSearching = false; }
-                    if (yHit == playerScreens[i].topR.y || xHit == playerScreens[i].topR.x) { pixelRange += 10; missScans++; }
-                    else { isTopRSearching = false; ps.topR = new Vector2Int(xHit, yHit); }
+
+                    if (xHit < playerScreens[i].scanFrameMinX || xHit > playerScreens[i].scanFrameMaxX ||
+                        yHit < playerScreens[i].scanFrameMinY || yHit > playerScreens[i].scanFrameMaxY)
+                    {
+                        isOutOfBounds = true;
+                    }
+                    else
+                    {
+                        ps.topR = new Vector2Int(xHit, yHit);
+                        isTopRSearching = false;
+                    }
+
+                    if (isTopRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+                    else if (isOutOfBounds == true || missScans > maxAdditionalScans) { ps.isCurrentlyActive = false; playerScreens[i] = ps; StartCoroutine(OutOfBoundsCorrection(i)); break; }
+
+
                 }
+                if (ps.isCurrentlyActive == false) { continue; } // Skips the iteration for the current player
 
 
                 // BOTTOM RIGHT TRACKER
                 missScans = 0;
                 pixelRange = 10;
-                yHit = playerScreens[i].topL.y + pixelRange;
-                xHit = playerScreens[i].topL.x - pixelRange;
+                yHit = playerScreens[i].botR.y + pixelRange;
+                xHit = playerScreens[i].botR.x - pixelRange;
                 bool isBotRSearching = true;
                 while (isBotRSearching)
                 {
@@ -290,6 +318,8 @@ public class ScreenDetector : MonoBehaviour
                         for (int x = playerScreens[i].botR.x - pixelRange; x < playerScreens[i].botR.x + pixelRange; x++)
                         {
                             int index = y * uiWidth + x;
+                            if (index > totalPixelAmount) { continue; }
+
                             pixel = webcamPixels[index];
 
                             if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
@@ -299,16 +329,31 @@ public class ScreenDetector : MonoBehaviour
                             }
                         }
                     }
-                    if (missScans > 5) { isBotRSearching = false; }
-                    if (yHit == playerScreens[i].botR.y || xHit == playerScreens[i].botR.x) { pixelRange += 10; missScans++; }
-                    else { isBotRSearching = false; ps.botR = new Vector2Int(xHit, yHit); }
+
+
+                    if (xHit < playerScreens[i].scanFrameMinX || xHit > playerScreens[i].scanFrameMaxX ||
+                        yHit < playerScreens[i].scanFrameMinY || yHit > playerScreens[i].scanFrameMaxY)
+                    {
+                        isOutOfBounds = true;
+                    }
+                    else
+                    {
+                        ps.botR = new Vector2Int(xHit, yHit);
+                        isBotRSearching = false;
+                    }
+
+                    if (isBotRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+                    else if (isOutOfBounds == true || missScans > maxAdditionalScans) { ps.isCurrentlyActive = false; playerScreens[i] = ps; StartCoroutine(OutOfBoundsCorrection(i)); break; }
+
                 }
+                if (ps.isCurrentlyActive == false) { continue; } // Skips the iteration for the current player
+
 
                 // BOTTOM Left TRACKER
                 missScans = 0;
                 pixelRange = 10;
-                yHit = playerScreens[i].topR.y + pixelRange;
-                xHit = playerScreens[i].topR.x + pixelRange;
+                yHit = playerScreens[i].botL.y + pixelRange;
+                xHit = playerScreens[i].botL.x + pixelRange;
                 bool isBotLSearching = true;
                 while (isBotLSearching)
                 {
@@ -317,19 +362,37 @@ public class ScreenDetector : MonoBehaviour
                         for (int x = playerScreens[i].botL.x - pixelRange; x < playerScreens[i].botL.x + pixelRange; x++)
                         {
                             int index = y * uiWidth + x;
+                            if (index > totalPixelAmount) { continue; }
+
                             pixel = webcamPixels[index];
 
                             if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
                             {
                                 if (y < yHit) yHit = y;
                                 if (x < xHit) xHit = x;
+                                isBotLSearching = false;
                             }
                         }
                     }
-                    if(missScans > 5) { isBotLSearching = false; }
-                    if (yHit == playerScreens[i].botL.y || xHit == playerScreens[i].botL.x) { pixelRange += 10; missScans++; }
-                    else { isBotLSearching = false; ps.botL = new Vector2Int(xHit, yHit); }
+
+                    if (xHit < playerScreens[i].scanFrameMinX || xHit > playerScreens[i].scanFrameMaxX ||
+                        yHit < playerScreens[i].scanFrameMinY || yHit > playerScreens[i].scanFrameMaxY)
+                    {
+                        isOutOfBounds = true;
+                    }
+                    else
+                    {
+                        ps.botL = new Vector2Int(xHit, yHit);
+                        isBotLSearching = false;
+                    }
+
+                    if (isBotLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+                    else if (isOutOfBounds == true || missScans > maxAdditionalScans) { ps.isCurrentlyActive = false; playerScreens[i] = ps; StartCoroutine(OutOfBoundsCorrection(i)); break; }
+
                 }
+                if (ps.isCurrentlyActive == false) { continue; } // Skips the iteration for the current player
+
+
 
                 // OVERWRITE PLAYER SCREEN DATA (including corners)
                 playerScreens[i] = ps;
@@ -527,10 +590,17 @@ public class ScreenDetector : MonoBehaviour
                 PieChartHandlers[i].tiltLRInputValue.text = Math.Round(playerInputs[i].tiltLeftRightInput, 2).ToString();
 
                 i++;
+
+                //Debug.Log("Finished player Tracing");
+
+                yield return null;
+
             }
 
             outputTexture.SetPixels(resultPixels);
             outputTexture.Apply();
+
+            yield return new WaitForSeconds(.1f);
         }
     }
 
@@ -682,10 +752,10 @@ public class ScreenDetector : MonoBehaviour
 
                             resultPixels[index] = colorList[i];
                         }
-                        else if(pixel.r < whiteThreshold && pixel.g < whiteThreshold && pixel.b < whiteThreshold)
-                        {
-                            resultPixels[index] = Color.magenta;
-                        }
+                        //else if(pixel.r < whiteThreshold && pixel.g < whiteThreshold && pixel.b < whiteThreshold)
+                        //{
+                        //    resultPixels[index] = Color.magenta;
+                        //}
                         else
                         {
                             resultPixels[index] = Color.clear; // Default transparent
@@ -753,32 +823,39 @@ public class ScreenDetector : MonoBehaviour
                     playerScreens[i] = tmp;
 
 
-                    if (stopScanningCoroutine != null) { StopCoroutine(stopScanningCoroutine); } // Stops stopScanCoro if available  
+                    if (stopScanningCoroutine != null) { StopCoroutine(stopScanningCoroutine); }
+                    stopScanningCoroutine = StartCoroutine(StopScanningCoroutine());
                 }
 
                 float fillPercentage = (float)playerScreenScanProcess[i] / (float)scanCompleteMaxValue;
 
                 if (fillPercentage >= 1)
                 {
-                    ArduinoSetup.instance.SetLedColor("GREEN");
+                    //ArduinoSetup.instance.SetLedColor("GREEN");
 
                     PlayerScreen tmp = playerScreens[i];
-                    Debug.Log("++++++++++++++++");
-                    Debug.Log("PlayerSCreenHeightMax: " + PlayerScreenHeightMax);
-                    Debug.Log("PlayerSCreenWIdthMax: " + PlayerScreenWidthMax);
-                    Debug.Log("PlayerSCreenHeightMax/Width Ratio: " + PlayerScreenHeightMax / PlayerScreenWidthMax);
-                    Debug.Log("tmp.height.norm " + tmp.height/ scanCompleteMaxValue);
-                    Debug.Log("tmp.width.norm " + tmp.width/ scanCompleteMaxValue);
-                    Debug.Log("tmp.ratio.norm " + tmp.ratio/ scanCompleteMaxValue);
-                    Debug.Log("++++++++++++++++");
+                    //Debug.Log("++++++++++++++++");
+                    //Debug.Log("PlayerSCreenHeightMax: " + PlayerScreenHeightMax);
+                    //Debug.Log("PlayerSCreenWIdthMax: " + PlayerScreenWidthMax);
+                    //Debug.Log("PlayerSCreenHeightMax/Width Ratio: " + PlayerScreenHeightMax / PlayerScreenWidthMax);
+                    //Debug.Log("tmp.height.norm " + tmp.height/ scanCompleteMaxValue);
+                    //Debug.Log("tmp.width.norm " + tmp.width/ scanCompleteMaxValue);
+                    //Debug.Log("tmp.ratio.norm " + tmp.ratio/ scanCompleteMaxValue);
+                    //Debug.Log("++++++++++++++++");
 
 
 
                     tmp.isCurrentlyActive = true;
-                    tmp.topL = new Vector2Int(playerMaxX, playerMaxY); // playerMinX, // playerMaxX // Flipped because camera is inverted as well
-                    tmp.topR = new Vector2Int(playerMinX, playerMinY); // playerMinX, // playerMinY
-                    tmp.botL = new Vector2Int(playerMinX, playerMaxY); // playerMinX
-                    tmp.botR = new Vector2Int(playerMaxX, playerMinY); // playerMinX// playerMaxY
+                    tmp.initTopL = new Vector2Int(playerMinX, playerMaxY); // playerMinX, // playerMaxX // Flipped because camera is inverted as well
+                    tmp.initTopR = new Vector2Int(playerMaxX, playerMaxY); // playerMinX, // playerMinY
+                    tmp.initBotL = new Vector2Int(playerMinX, playerMinY); // playerMinX
+                    tmp.initBotR = new Vector2Int(playerMaxX, playerMinY); // playerMinX// playerMaxY
+
+                    tmp.topL = tmp.initTopL; //new Vector2Int(playerMinX, playerMaxY); // playerMinX, // playerMaxX // Flipped because camera is inverted as well
+                    tmp.topR = tmp.initTopR; //new Vector2Int(playerMaxX, playerMaxY); // playerMinX, // playerMinY
+                    tmp.botL = tmp.initBotL; //new Vector2Int(playerMinX, playerMinY); // playerMinX
+                    tmp.botR = tmp.initBotR; //new Vector2Int(playerMaxX, playerMinY); // playerMinX// playerMaxY
+
                     tmp.minMin = Vector2Int.zero;
                     tmp.maxMax = Vector2Int.zero;
                     //tmp.height = PlayerScreenHeightMax;
@@ -807,6 +884,14 @@ public class ScreenDetector : MonoBehaviour
                     PlayerHandlers[i] = newPlayerHandler;
 
                     PieChartHandlers[i].FillScanProgress(1);
+
+                    PieChartHandlers[i].CornerTrackers.SetActive(true);
+                    PieChartHandlers[i].TopLeftTracker.anchoredPosition = (playerScreens[i].topL - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+                    PieChartHandlers[i].TopRightTracker.anchoredPosition = (playerScreens[i].topR - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+                    PieChartHandlers[i].BottomLeftTracker.anchoredPosition = (playerScreens[i].botL - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY)); // * new Vector2(-1, 1) in case of flipping
+                    PieChartHandlers[i].BottomRightTracker.anchoredPosition = (playerScreens[i].botR - new Vector2(playerScreens[i].scanFrameMinX, playerScreens[i].scanFrameMinY));
+
+                    yield return new WaitForSeconds(3);
 
                     if (stopScanningCoroutine != null) {StopCoroutine(stopScanningCoroutine); }
                     stopScanningCoroutine = StartCoroutine(StopScanningCoroutine());
@@ -858,6 +943,39 @@ public class ScreenDetector : MonoBehaviour
         }
         ClearScreen();
         JoinBtn.gameObject.SetActive(true);
+    }
+
+    IEnumerator OutOfBoundsCorrection(int playerIndex)
+    {
+        Debug.Log("++++++ Start OutOFBoundsCorrection ++++++");
+        PieChartHandlers[playerIndex].infoText.text = "Out of \nBounds";
+        PieChartHandlers[playerIndex].CornerTrackers.SetActive(false);
+
+        PlayerScreen ps = playerScreens[playerIndex];
+        ps.isCurrentlyActive = false;
+        ps.topL = ps.initTopL;
+        ps.topR = ps.initTopR;
+        ps.botL = ps.initBotL;
+        ps.botR = ps.initBotR;
+
+        playerScreens[playerIndex] = ps;
+
+        yield return new WaitForSeconds(1f);
+
+        PieChartHandlers[playerIndex].infoText.text = "Allign with \nCorners";
+
+        PieChartHandlers[playerIndex].CornerTrackers.SetActive(true);
+        PieChartHandlers[playerIndex].TopLeftTracker.anchoredPosition = (playerScreens[playerIndex].initTopL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        PieChartHandlers[playerIndex].TopRightTracker.anchoredPosition = (playerScreens[playerIndex].initTopR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        PieChartHandlers[playerIndex].BottomLeftTracker.anchoredPosition = (playerScreens[playerIndex].initBotL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        PieChartHandlers[playerIndex].BottomRightTracker.anchoredPosition = (playerScreens[playerIndex].initBotR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+
+        yield return new WaitForSeconds(1f);
+        ps.isCurrentlyActive = true;
+        playerScreens[playerIndex] = ps;
+        PieChartHandlers[playerIndex].infoText.text = "";
+
+
     }
 
 }
