@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f731b9ad-4e3b-46b4-a481-1eb7b7ed3dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.windowWorld/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/AttackState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/AttackState.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/EnemySM/EnemyStateMachine.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -138,7 +140,9 @@
       <workItem from="1745854222808" duration="51000" />
       <workItem from="1746046847126" duration="306000" />
       <workItem from="1746049425412" duration="580000" />
-      <workItem from="1746181199579" duration="2847000" />
+      <workItem from="1746181199579" duration="3445000" />
+      <workItem from="1746286340886" duration="3731000" />
+      <workItem from="1746305481943" duration="2008000" />
     </task>
     <servers />
   </component>
