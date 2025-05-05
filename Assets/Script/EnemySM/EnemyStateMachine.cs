@@ -25,8 +25,7 @@ public class EnemyStateMachine : MonoBehaviour
     
     [Header("Dashing")] 
     public float dashSpeed;
-    public float dashDuration;
-    public bool isDashing;
+    public  float acceleration;
     
     [Header("States")]
     public AttackState attackState;
