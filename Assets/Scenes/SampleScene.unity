@@ -2699,9 +2699,9 @@ MonoBehaviour:
   newPlayerOffset: 0
   xSpacing: 100
   stopScanningTimeThreshold: 2
-  pixelBufferCentered: 50
-  pixelBufferTiltUpDown: 20
-  pixelBufferTiltLeftRight: 20
+  angleLeftRight: 1.7
+  pixelBufferTiltUpDownPrecentage: 0.1
+  pixelBufferTiltLeftRightPercentage: 0.1
   windowCoverHandlers:
   - {fileID: 818858160}
   - {fileID: 1562096501}

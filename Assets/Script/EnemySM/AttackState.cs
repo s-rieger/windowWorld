@@ -42,7 +42,7 @@ public class AttackState : BaseState
                 }
                 else
                 {
-                    Debug.Log("Waiting for the next move");
+                    //Debug.Log("Waiting for the next move");// TODO COMMENT THIS ONE OUT
                     Vector3 directionToTarget = (model.target.transform.position - model.transform.position).normalized;
 
                     Vector3 randomPosition = model.transform.position + directionToTarget * randomDistance;

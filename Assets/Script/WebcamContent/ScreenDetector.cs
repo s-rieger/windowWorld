@@ -9,6 +9,7 @@ using TMPro;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using System.Linq;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class ScreenDetector : MonoBehaviour
 {
@@ -92,9 +93,9 @@ public class ScreenDetector : MonoBehaviour
     Coroutine scanCoroutine;
     Coroutine traceCoroutine;
     [SerializeField] private float stopScanningTimeThreshold = 10;
-    [SerializeField] private float pixelBufferCentered = 10;
-    [SerializeField] private float pixelBufferTiltUpDown = 20;
-    [SerializeField] private float pixelBufferTiltLeftRight = 20;
+    [SerializeField] private float angleLeftRight = 10;
+    [SerializeField] private float pixelBufferTiltUpDownPrecentage = .1f;
+    [SerializeField] private float pixelBufferTiltLeftRightPercentage = .1f;
 
     [Header("Window Covers")]
     [SerializeField] private List<WindowCoverHandler> windowCoverHandlers = new List<WindowCoverHandler>(6);
@@ -281,7 +282,6 @@ public class ScreenDetector : MonoBehaviour
                             {
                                 if (y > yHit) yHit = y;
                                 if (x > xHit) xHit = x;
-                                isTopRSearching = false;
                             }
                         }
                     }
@@ -370,7 +370,6 @@ public class ScreenDetector : MonoBehaviour
                             {
                                 if (y < yHit) yHit = y;
                                 if (x < xHit) xHit = x;
-                                isBotLSearching = false;
                             }
                         }
                     }
@@ -401,48 +400,48 @@ public class ScreenDetector : MonoBehaviour
 
 
                 #region caluclate movement
-                float tiltLeftRightPuffer = 10;
                 float tiltLeftRightTmp = 0;
-                if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) < Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL) - tiltLeftRightPuffer)
-                {
-                    tiltLeftRightTmp = 1;
-
-                }
-                else if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) > Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL) + tiltLeftRightPuffer)
-                {
-                    tiltLeftRightTmp = -1;
-                }
-                else
+                if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) >= playerScreens[i].width - (playerScreens[i].width * pixelBufferTiltLeftRightPercentage))
                 {
                     tiltLeftRightTmp = 0;
-                }
-
-                float tiltUpDownPuffer = 20;
-                float tiltUpDownTmp = 0;
-                if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) < playerScreens[i].height - tiltUpDownPuffer)
-                {
-                    tiltUpDownTmp = 1;
 
                 }
                 else
                 {
-                    tiltUpDownTmp = 0;
+                    tiltLeftRightTmp = 1;
                 }
+                Debug.Log("LeftRigh: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) + " / " + playerScreens[i].width);
+
+
+                float tiltUpDownTmp = 0;
+                if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) >= playerScreens[i].height - (playerScreens[i].height * pixelBufferTiltUpDownPrecentage))
+                {
+                    tiltUpDownTmp = 0;
+
+                }
+                else
+                {
+                    tiltUpDownTmp = 1;
+                }
+                Debug.Log("UpDOwn: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) + " / " + playerScreens[i].height);
+
 
                 float rotInputTest = 0;
-                Vector2 tmpBot = playerScreens[i].botR - playerScreens[i].botL;
-                Vector2 tmpTop = playerScreens[i].topR - playerScreens[i].topL;
+                //Vector2 tmpBot = playerScreens[i].botR - playerScreens[i].botL;
+                //Vector2 tmpTop = playerScreens[i].topR - playerScreens[i].topL;
+                Vector2 tmpRightEdge = playerScreens[i].topR - playerScreens[i].botR;
+                Vector2 tmpLeftEdge = playerScreens[i].topR - playerScreens[i].botR;
 
-                float angle = Vector2.SignedAngle(tmpBot, tmpTop);
-                float angle2 = Vector2.SignedAngle(tmpBot - Vector2.up, tmpTop + Vector2.up);
+                //float angle = Vector2.SignedAngle(tmpBot - Vector2.up, tmpTop + Vector2.up);
+                float angleRight = Vector2.SignedAngle(Vector2.up, tmpRightEdge);
+                float angleLeft = Vector2.SignedAngle(Vector2.up, tmpLeftEdge);
 
-                Debug.Log("Angle: " + angle);
-                Debug.Log("Angle2: " + angle2);
-                if (angle > 2.5f)
+                float angle = (angleLeft + angleRight) / 2;
+                if (angle > angleLeftRight)
                 {
                     rotInputTest = 1;
                 }
-                else if (angle < -2.5f)
+                else if (angle < -angleLeftRight)
                 {
                     rotInputTest = -1;
                 }
@@ -450,6 +449,7 @@ public class ScreenDetector : MonoBehaviour
                 {
                     rotInputTest = 0;
                 }
+                Debug.Log("Angle: " + angle);
 
 
 
@@ -723,7 +723,7 @@ public class ScreenDetector : MonoBehaviour
 
                 if (fillPercentage >= 1)
                 {
-                    ArduinoSetup.instance.SetLedColor("GREEN");
+                    //ArduinoSetup.instance.SetLedColor("GREEN");
 
                     PlayerScreen tmp = playerScreens[i];
                     //Debug.Log("++++++++++++++++");
@@ -755,6 +755,8 @@ public class ScreenDetector : MonoBehaviour
                     //tmp.ratio = PlayerScreenWidthMax / PlayerScreenHeightMax;
                     tmp.height = tmp.height / scanCompleteMaxValue;
                     tmp.width = tmp.width/ scanCompleteMaxValue;
+
+                    Debug.Log("Width/Height: " + tmp.width + "/" + tmp.height);
                     tmp.ratio = tmp.ratio/ scanCompleteMaxValue;
                     playerScreens[i] = tmp;
 
@@ -839,7 +841,6 @@ public class ScreenDetector : MonoBehaviour
 
     IEnumerator OutOfBoundsCorrection(int playerIndex)
     {
-        Debug.Log("++++++ Start OutOFBoundsCorrection ++++++");
         PieChartHandlers[playerIndex].infoText.text = "Out of \nBounds";
         PieChartHandlers[playerIndex].CornerTrackers.SetActive(false);
 
@@ -853,8 +854,7 @@ public class ScreenDetector : MonoBehaviour
         playerScreens[playerIndex] = ps;
 
         yield return new WaitForSeconds(1f);
-
-        PieChartHandlers[playerIndex].infoText.text = "Allign with \nCorners";
+        PieChartHandlers[playerIndex].infoText.text = "Keep \nCentered";
 
         PieChartHandlers[playerIndex].CornerTrackers.SetActive(true);
         PieChartHandlers[playerIndex].TopLeftTracker.anchoredPosition = (playerScreens[playerIndex].initTopL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
@@ -862,12 +862,205 @@ public class ScreenDetector : MonoBehaviour
         PieChartHandlers[playerIndex].BottomLeftTracker.anchoredPosition = (playerScreens[playerIndex].initBotL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
         PieChartHandlers[playerIndex].BottomRightTracker.anchoredPosition = (playerScreens[playerIndex].initBotR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
 
-        yield return new WaitForSeconds(1f);
-        ps.isCurrentlyActive = true;
         playerScreens[playerIndex] = ps;
+        playerScreens[playerIndex] = ScanScreen(playerScreens[playerIndex], playerIndex);
+
+        yield return new WaitForSeconds(1f);
+        PieChartHandlers[playerIndex].infoText.text = "Ready";
+
+
+        yield return new WaitForSeconds(1f);
         PieChartHandlers[playerIndex].infoText.text = "";
+    }
 
 
+
+    PlayerScreen ScanScreen(PlayerScreen currentPS, int playerIndex)
+    {
+        webcamPixels = webcamTexture.GetPixels();
+        Color pixel;
+        bool isOutOfBounds = false;
+        int maxAdditionalScans = 3;
+
+
+        // TOP LEFT TRACKER
+        int missScans = 0;
+        int pixelRange = 20;
+        int yHit = currentPS.topL.y - pixelRange;
+        int xHit = currentPS.topL.x + pixelRange;
+        bool isTopLSearching = true;
+
+        while (isTopLSearching)
+        {
+            for (int y = currentPS.topL.y - pixelRange; y < currentPS.topL.y + pixelRange; y++)
+            {
+                for (int x = currentPS.topL.x - pixelRange; x < currentPS.topL.x + pixelRange; x++)
+                {
+                    int index = y * uiWidth + x;
+                    if (index >= totalPixelAmount || index < 0) { continue; }
+
+                    pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        if (y > yHit) yHit = y;
+                        if (x < xHit) xHit = x;
+                    }
+                }
+            }
+
+            if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
+                yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
+            {
+                isOutOfBounds = true;
+            }
+            else
+            {
+                currentPS.topL = new Vector2Int(xHit, yHit);
+                isTopLSearching = false;
+            }
+
+            if (isTopLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false;  break; }
+        }
+
+
+        // TOP RIGHT TRACKER
+        missScans = 0;
+        pixelRange = 20;
+        yHit = currentPS.topR.y - pixelRange;
+        xHit = currentPS.topR.x - pixelRange;
+        bool isTopRSearching = true;
+        while (isTopRSearching)
+        {
+            for (int y = currentPS.topR.y - pixelRange; y < currentPS.topR.y + pixelRange; y++)
+            {
+                for (int x = currentPS.topR.x - pixelRange; x < currentPS.topR.x + pixelRange; x++)
+                {
+                    int index = y * uiWidth + x;
+                    if (index > totalPixelAmount) { continue; }
+
+                    pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        if (y > yHit) yHit = y;
+                        if (x > xHit) xHit = x;
+                    }
+                }
+            }
+
+            if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
+                yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
+            {
+                isOutOfBounds = true;
+            }
+            else
+            {
+                currentPS.topR = new Vector2Int(xHit, yHit);
+                isTopRSearching = false;
+            }
+
+            if (isTopRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; break; }
+
+
+        }
+
+
+        // BOTTOM RIGHT TRACKER
+        missScans = 0;
+        pixelRange = 10;
+        yHit = currentPS.botR.y + pixelRange;
+        xHit = currentPS.botR.x - pixelRange;
+        bool isBotRSearching = true;
+        while (isBotRSearching)
+        {
+            for (int y = currentPS.botR.y - pixelRange; y < currentPS.botR.y + pixelRange; y++)
+            {
+                for (int x = currentPS.botR.x - pixelRange; x < currentPS.botR.x + pixelRange; x++)
+                {
+                    int index = y * uiWidth + x;
+                    if (index > totalPixelAmount) { continue; }
+
+                    pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        if (y < yHit) yHit = y;
+                        if (x > xHit) xHit = x;
+                    }
+                }
+            }
+
+
+            if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
+                yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
+            {
+                isOutOfBounds = true;
+            }
+            else
+            {
+                currentPS.botR = new Vector2Int(xHit, yHit);
+                isBotRSearching = false;
+            }
+
+            if (isBotRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; break; }
+
+        }
+
+
+        // BOTTOM Left TRACKER
+        missScans = 0;
+        pixelRange = 10;
+        yHit = currentPS.botL.y + pixelRange;
+        xHit = currentPS.botL.x + pixelRange;
+        bool isBotLSearching = true;
+        while (isBotLSearching)
+        {
+            for (int y = currentPS.botL.y - pixelRange; y < currentPS.botL.y + pixelRange; y++)
+            {
+                for (int x = currentPS.botL.x - pixelRange; x < currentPS.botL.x + pixelRange; x++)
+                {
+                    int index = y * uiWidth + x;
+                    if (index > totalPixelAmount) { continue; }
+
+                    pixel = webcamPixels[index];
+
+                    if (pixel.r > redThreshold && pixel.g < greenMax && pixel.b < blueMax)
+                    {
+                        if (y < yHit) yHit = y;
+                        if (x < xHit) xHit = x;
+                    }
+                }
+            }
+
+            if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
+                yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
+            {
+                isOutOfBounds = true;
+            }
+            else
+            {
+                currentPS.botL = new Vector2Int(xHit, yHit);
+                isBotLSearching = false;
+            }
+
+            if (isBotLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
+            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; break; }
+        }
+
+
+        currentPS.height = (Vector2.Distance(currentPS.topL, currentPS.botL) + Vector2.Distance(currentPS.topR, currentPS.botR)) / 2;
+        currentPS.width = (Vector2.Distance(currentPS.topL, currentPS.topR) + Vector2.Distance(currentPS.botL, currentPS.botR)) / 2;
+
+        currentPS.ratio = currentPS.height / currentPS.width;
+        Debug.Log("NEW Height/Width/ratio: " + currentPS.height + "/" + currentPS.width + "/" + currentPS.ratio);
+
+        currentPS.isCurrentlyActive = true;
+
+        return currentPS;
     }
 
 }
