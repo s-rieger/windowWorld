@@ -2672,9 +2672,9 @@ MonoBehaviour:
   resultDisplay: {fileID: 1443654990}
   webcamRect: {fileID: 51905496}
   playRect: {fileID: 1443654989}
-  redThreshold: 0.6
-  greenMax: 0.2
-  blueMax: 0.2
+  redThreshold: 0.5
+  greenMax: 0.3
+  blueMax: 0.3
   whiteThreshold: 0.3
   grayscaleThreshold: 0.8
   JoinBtn: {fileID: 770369098}
@@ -2690,7 +2690,7 @@ MonoBehaviour:
   p6: {r: 0, g: 1, b: 0.98984313, a: 1}
   traceActive: 0
   scanActive: 0
-  scanCompleteMaxValue: 1
+  scanCompleteMaxValue: 20
   neededScanPercentage: 0.001
   screenWidth: 200
   screenHeight: 300
