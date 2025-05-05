@@ -763,14 +763,14 @@ public class ScreenDetector : MonoBehaviour
                     ArduinoSetup.instance.SetLedColor("GREEN");
 
                     PlayerScreen tmp = playerScreens[i];
-                    Debug.Log("++++++++++++++++");
-                    Debug.Log("PlayerSCreenHeightMax: " + PlayerScreenHeightMax);
-                    Debug.Log("PlayerSCreenWIdthMax: " + PlayerScreenWidthMax);
-                    Debug.Log("PlayerSCreenHeightMax/Width Ratio: " + PlayerScreenHeightMax / PlayerScreenWidthMax);
-                    Debug.Log("tmp.height.norm " + tmp.height/ scanCompleteMaxValue);
-                    Debug.Log("tmp.width.norm " + tmp.width/ scanCompleteMaxValue);
-                    Debug.Log("tmp.ratio.norm " + tmp.ratio/ scanCompleteMaxValue);
-                    Debug.Log("++++++++++++++++");
+                    // Debug.Log("++++++++++++++++");
+                    // Debug.Log("PlayerSCreenHeightMax: " + PlayerScreenHeightMax);
+                    // Debug.Log("PlayerSCreenWIdthMax: " + PlayerScreenWidthMax);
+                    // Debug.Log("PlayerSCreenHeightMax/Width Ratio: " + PlayerScreenHeightMax / PlayerScreenWidthMax);
+                    // Debug.Log("tmp.height.norm " + tmp.height/ scanCompleteMaxValue);
+                    // Debug.Log("tmp.width.norm " + tmp.width/ scanCompleteMaxValue);
+                    // Debug.Log("tmp.ratio.norm " + tmp.ratio/ scanCompleteMaxValue);
+                    // Debug.Log("++++++++++++++++");
 
 
 
