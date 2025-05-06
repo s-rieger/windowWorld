@@ -10,8 +10,12 @@ public class OrbCollectableHandler : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            other.GetComponent<PlayerHandler>().CollectOrb();
+
             orbText.enabled = true;
             orbText.text = orbTextOnEnter;
+            OrbManager.Instance.SpawnOrb();
+            Destroy(this.gameObject);
         }
     }
     

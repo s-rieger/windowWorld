@@ -57,7 +57,6 @@ public class PlayerHandler : MonoBehaviour
         transform.Rotate(0f, rotationAmount, 0f, Space.Self);
 
         transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
-        transform.localScale = Vector3.one * (35 - thisPlayerInput.tiltLeftRightInput * playerStretchSpeed * Time.fixedDeltaTime); 
         #region Use Vec2 for rotattion
         //// Calculate the angle from the input
         //float targetAngle = Mathf.Atan2(rotInput.y, rotInput.x) * Mathf.Rad2Deg;
@@ -68,5 +67,11 @@ public class PlayerHandler : MonoBehaviour
         //// Smoothly rotate towards the target
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, playerRotSpeed * Time.fixedDeltaTime);
         #endregion
+    }
+
+    public void CollectOrb()
+    {
+        transform.localScale += Vector3.one * 0.1f;
+
     }
 }

@@ -6658,6 +6658,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1443654988}
   m_CullTransparentMesh: 1
+--- !u!1 &1447557364
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1447557366}
+  - component: {fileID: 1447557365}
+  m_Layer: 0
+  m_Name: OrbManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1447557365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1447557364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4852031a67abf4b4195249bd943c1fc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollectableOrb: {fileID: 2219790522553420553, guid: 99fea6bea95dda04ab44850ca585a061, type: 3}
+  SpawnArea: {fileID: 1955155032}
+  maxX: 3
+  minX: -3
+  minY: -0.5
+  maxY: -2.5
+--- !u!4 &1447557366
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1447557364}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 26.494646, y: -50.508, z: -408.8575}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1466401944 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2120138376846508297, guid: 310308581d2f03743ab4d7fac161f471, type: 3}
@@ -7581,7 +7631,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1955155032
 Transform:
   m_ObjectHideFlags: 0
@@ -8009,3 +8059,4 @@ SceneRoots:
   - {fileID: 3076883754090162350}
   - {fileID: 652199490}
   - {fileID: 970568661}
+  - {fileID: 1447557366}
