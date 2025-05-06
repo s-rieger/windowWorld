@@ -115,6 +115,10 @@ public class ScreenDetector : MonoBehaviour
 
     void Start()
     {
+        //WebCamDevice[] devices = WebCamTexture.devices;
+
+        //Debug.Log(devices);
+
         for (int i = 0; i < 6; i++) {
             playerScreens.Add(default(PlayerScreen));
             playerScreenScanProcess.Add(default(int));
@@ -410,20 +414,19 @@ public class ScreenDetector : MonoBehaviour
                 {
                     tiltLeftRightTmp = 1;
                 }
-                Debug.Log("LeftRigh: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) + " / " + playerScreens[i].width);
+                //Debug.Log("LeftRigh: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) + " / " + playerScreens[i].width);
 
 
                 float tiltUpDownTmp = 0;
                 if (Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) >= playerScreens[i].height - (playerScreens[i].height * pixelBufferTiltUpDownPrecentage))
                 {
                     tiltUpDownTmp = 0;
-
                 }
                 else
                 {
                     tiltUpDownTmp = 1;
                 }
-                Debug.Log("UpDOwn: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) + " / " + playerScreens[i].height);
+                Debug.Log("Up|Down: " + Vector2.Distance(playerScreens[i].topR, playerScreens[i].botR) + " | " + (playerScreens[i].height - (playerScreens[i].height * pixelBufferTiltUpDownPrecentage)) +  " | normHeight: " + playerScreens[i].height);
 
 
                 float rotInputTest = 0;
@@ -449,21 +452,14 @@ public class ScreenDetector : MonoBehaviour
                 {
                     rotInputTest = 0;
                 }
-                Debug.Log("Angle: " + angle);
+                //Debug.Log("Angle: " + angle);
 
 
 
                 PlayerInput tmpInput = new PlayerInput
                 {
-                    //rotInput = (playerScreens[i].topL - playerScreens[i].topR).normalized,
-                    //rotInput = GetDirectionalValue(playerScreens[i].topR - playerScreens[i].topL),
                     rotInput = rotInputTest,
-                    //tiltInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR),
-                    //tiltLeftRightInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].topR) < playerScreens[i].width + pixelBufferTiltLeftRight ? 1 : 0,
-                    //tiltLeftRightInput = Vector2.Distance(playerScreens[i].topR, playerScreens[i].topL) < Vector2.Distance(playerScreens[i].botR, playerScreens[i].botL) ? 1 : 0,
                     tiltLeftRightInput = tiltLeftRightTmp,
-                    //yawInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL),
-                    //tiltUpDownInput = Vector2.Distance(playerScreens[i].topL, playerScreens[i].botL) < playerScreens[i].height + pixelBufferTiltUpDown ? 1 : 0,
                     tiltUpDownInput = tiltUpDownTmp,
                 };
 
@@ -851,6 +847,17 @@ public class ScreenDetector : MonoBehaviour
         ps.botL = ps.initBotL;
         ps.botR = ps.initBotR;
 
+        PlayerInput tmpInput = new PlayerInput
+        {
+            rotInput = 0,
+            tiltLeftRightInput = 0,
+            tiltUpDownInput = 0,
+        };
+
+        playerInputs[playerIndex] = tmpInput;
+        PlayerHandlers[playerIndex].thisPlayerInput = tmpInput;
+
+
         playerScreens[playerIndex] = ps;
 
         yield return new WaitForSeconds(1f);
@@ -1057,6 +1064,9 @@ public class ScreenDetector : MonoBehaviour
 
         currentPS.ratio = currentPS.height / currentPS.width;
         Debug.Log("NEW Height/Width/ratio: " + currentPS.height + "/" + currentPS.width + "/" + currentPS.ratio);
+
+
+
 
         currentPS.isCurrentlyActive = true;
 
