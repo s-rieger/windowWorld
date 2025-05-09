@@ -22,7 +22,12 @@ public class PieChartHandler : MonoBehaviour
     public RectTransform BottomLeftTracker;
     public RectTransform TopRightTracker;
     public RectTransform BottomRightTracker;
-    
+
+    [Header("Pixel Color Scanner")]
+    public RectTransform PixelScannerTracker;
+    public TextMeshProUGUI PixelScannerValueText;
+
+
     void Start()
     {
         pieChart.fillAmount = 0f;

@@ -18,14 +18,14 @@ public class WindowCoverHandler : MonoBehaviour
 
     public void OpenWindows(int index)
     {
-        //anim.Play("OpenWindows");
+        if(ScreenDetector.Instance.isDebug == true) { return; }
         StartCoroutine(OpenWindowCoro(index));
 
     }
 
     public void CloseWindows(int index) 
     {
-        //anim.Play("CloseWindows");
+        if (ScreenDetector.Instance.isDebug == true) { return; }
         StartCoroutine(CloseWindowCoro(index));
     }
 
