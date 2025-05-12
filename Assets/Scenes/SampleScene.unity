@@ -7265,6 +7265,7 @@ MonoBehaviour:
   resultDisplay: {fileID: 1443654990}
   webcamRect: {fileID: 51905496}
   playRect: {fileID: 1443654989}
+  colorPuffer: 0.1
   redThreshold: 0.5
   greenMax: 0.3
   blueMax: 0.3
@@ -7289,7 +7290,7 @@ MonoBehaviour:
   newPlayerOffset: 0
   xSpacing: 100
   stopScanningTimeThreshold: 2
-  angleLeftRight: 2
+  angleLeftRight: 5
   pixelBufferTiltUpDownPrecentage: 0.1
   pixelBufferTiltLeftRightPercentage: 0.1
   windowCoverHandlers:

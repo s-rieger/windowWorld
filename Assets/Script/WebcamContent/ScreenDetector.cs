@@ -103,6 +103,7 @@ public class ScreenDetector : MonoBehaviour
     Coroutine[] stopCallibratePlayerCoroutines = new Coroutine[6];
     Coroutine[] callibratePlayerCoroutines = new Coroutine[6];
     Coroutine[] tracePlayerCoroutines = new Coroutine[6];
+    Coroutine[] outOfBoundsPlayerCoroutines = new Coroutine[6];
 
     [Header("Window Covers")]
     [SerializeField] private List<WindowCoverHandler> windowCoverHandlers = new List<WindowCoverHandler>(6);
@@ -209,9 +210,18 @@ public class ScreenDetector : MonoBehaviour
 
     IEnumerator TracePlayers(int playerIndex)
     {
+        int pixelColorScanIndex = ((playerScreens[playerIndex].scanFrameMinY + (screenHeight / 2)) * uiWidth) + playerScreens[playerIndex].scanFrameMinX + (screenWidth / 2);
+
         Debug.Log("Start Tracing Player");
         while (traceActive[playerIndex] == true)
         {
+            // DEBUG
+            PieChartHandlers[playerIndex].PixelScannerValueText.text = $"R: {Math.Round(webcamPixels[pixelColorScanIndex].r, 3)}\nG: {Math.Round(webcamPixels[pixelColorScanIndex].g, 3)}\nB: {Math.Round(webcamPixels[pixelColorScanIndex].b, 3)}";
+            //playerScreens[playerIndex].redPixelValue = webcamPixels[pixelColorScanIndex].r;
+            //playerScreens[playerIndex].bluePixelValue = webcamPixels[pixelColorScanIndex].b;
+            //playerScreens[playerIndex].greenPixelValue = webcamPixels[pixelColorScanIndex].g;
+            // DEBUG
+
             playerScreens[playerIndex] = TraceCorners(playerIndex);
             PositionCornerTrackers(playerIndex);
 
@@ -236,7 +246,7 @@ public class ScreenDetector : MonoBehaviour
             {
                 tiltUpDownTmp = 1;
             }
-            Debug.Log("Up|Down: " + Vector2.Distance(playerScreens[playerIndex].topR, playerScreens[playerIndex].botR) + " | " + (playerScreens[playerIndex].height - (playerScreens[playerIndex].height * pixelBufferTiltUpDownPrecentage)) +  " | normHeight: " + playerScreens[playerIndex].height);
+            //Debug.Log("Up|Down: " + Vector2.Distance(playerScreens[playerIndex].topR, playerScreens[playerIndex].botR) + " | " + (playerScreens[playerIndex].height - (playerScreens[playerIndex].height * pixelBufferTiltUpDownPrecentage)) +  " | normHeight: " + playerScreens[playerIndex].height);
 
 
             float rotInputTest = 0;
@@ -259,7 +269,7 @@ public class ScreenDetector : MonoBehaviour
             {
                 rotInputTest = 0;
             }
-            Debug.Log("Angle: " + angle);
+            //Debug.Log("Angle: " + angle);
 
 
 
@@ -492,7 +502,6 @@ public class ScreenDetector : MonoBehaviour
 
                 if (stopCallibratePlayerCoroutines[playerIndex] == null) 
                 {
-                    Debug.Log("Start Stop Callibrating");
                     stopCallibratePlayerCoroutines[playerIndex] = StartCoroutine(StopCallibrationCoroutine(playerIndex)); 
                 }
             }
@@ -520,7 +529,7 @@ public class ScreenDetector : MonoBehaviour
 
                 PlayerScreen tmp = playerScreens[playerIndex];
 
-                Debug.Log("minX, maxX, minY, maxY: " + playerMinX + ", "+ playerMaxX + ", " + playerMinY + ", " + playerMaxY);
+                //Debug.Log("minX, maxX, minY, maxY: " + playerMinX + ", "+ playerMaxX + ", " + playerMinY + ", " + playerMaxY);
 
                 tmp.isCurrentlyActive = true;
                 tmp.initTopL = new Vector2Int(playerMinX, playerMaxY); // playerMinX, // playerMaxX // Flipped because camera is inverted as well
@@ -572,8 +581,13 @@ public class ScreenDetector : MonoBehaviour
                 yield return new WaitForSeconds(1);
                 PieChartHandlers[playerIndex].infoText.text = "";
 
+                ClearFrame(playerScreens[playerIndex]);
+
+                StopCoroutine(stopCallibratePlayerCoroutines[playerIndex]);
+                stopCallibratePlayerCoroutines[playerIndex] = null;
 
                 StopCoroutine(callibratePlayerCoroutines[playerIndex]); // Stop this coroutine;
+                callibratePlayerCoroutines[playerIndex] = null;
                 scanActive[playerIndex] = false;
             }
             else
@@ -660,6 +674,13 @@ public class ScreenDetector : MonoBehaviour
 
     IEnumerator OutOfBoundsCorrection(int playerIndex)
     {
+        Debug.Log("Start Out of bounds correction");
+
+        StopCoroutine(tracePlayerCoroutines[playerIndex]);
+        tracePlayerCoroutines[playerIndex] = null;
+        traceActive[playerIndex] = false;
+
+
         PieChartHandlers[playerIndex].infoText.text = "Out of \nBounds";
         PieChartHandlers[playerIndex].CornerTrackers.SetActive(false);
 
@@ -686,11 +707,15 @@ public class ScreenDetector : MonoBehaviour
         yield return new WaitForSeconds(1f);
         PieChartHandlers[playerIndex].infoText.text = "Keep \nCentered";
 
-        PieChartHandlers[playerIndex].CornerTrackers.SetActive(true);
-        PositionCornerTrackers(playerIndex);
+        int pixelColorScanIndex = ((playerScreens[playerIndex].scanFrameMinY + (screenHeight / 2)) * uiWidth) + playerScreens[playerIndex].scanFrameMinX + (screenWidth / 2);
+        PieChartHandlers[playerIndex].PixelScannerValueText.text = $"R: {Math.Round(webcamPixels[pixelColorScanIndex].r, 3)}\nG: {Math.Round(webcamPixels[pixelColorScanIndex].g, 3)}\nB: {Math.Round(webcamPixels[pixelColorScanIndex].b, 3)}";
+        playerScreens[playerIndex].redPixelValue = webcamPixels[pixelColorScanIndex].r;
+        playerScreens[playerIndex].bluePixelValue = webcamPixels[pixelColorScanIndex].b;
+        playerScreens[playerIndex].greenPixelValue = webcamPixels[pixelColorScanIndex].g;
 
-        playerScreens[playerIndex] = ps;
+        PieChartHandlers[playerIndex].CornerTrackers.SetActive(true);
         playerScreens[playerIndex] = TraceCorners(playerIndex);
+        PositionCornerTrackers(playerIndex);
 
         #region New Calibration TODO
         // Calculate new width & Height & Ratio
@@ -707,20 +732,21 @@ public class ScreenDetector : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         PieChartHandlers[playerIndex].infoText.text = "";
+
+        traceActive[playerIndex] = true;
+        tracePlayerCoroutines[playerIndex] = StartCoroutine(TracePlayers(playerIndex));
     }
 
     PlayerScreen TraceCorners(int playerIndex)
     {
         PlayerScreen currentPS = playerScreens[playerIndex];
-
-        webcamPixels = webcamTexture.GetPixels();
         Color pixel;
-        bool isOutOfBounds = false;
         int maxAdditionalScans = 3;
 
 
         // TOP LEFT TRACKER
         int missScans = 0;
+        int outOfBounds = 0;
         int pixelRange = 20;
         int yHit = currentPS.topL.y - pixelRange;
         int xHit = currentPS.topL.x + pixelRange;
@@ -748,8 +774,9 @@ public class ScreenDetector : MonoBehaviour
             if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
                 yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
             {
-                isOutOfBounds = true;
-                currentPS.topL = new Vector2Int(currentPS.scanFrameMinX + screenWidth/2, currentPS.scanFrameMinY + screenHeight/2);
+                outOfBounds++;
+
+                //currentPS.topL = new Vector2Int(currentPS.scanFrameMinX + screenWidth/2, currentPS.scanFrameMinY + screenHeight/2);
             }
             else
             {
@@ -757,13 +784,14 @@ public class ScreenDetector : MonoBehaviour
                 isTopLSearching = false;
             }
 
-            if (isTopLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
-            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
+            if (isTopLSearching == true && missScans < maxAdditionalScans) { pixelRange += 10; missScans++; }
+            else if (outOfBounds > maxAdditionalScans || missScans > maxAdditionalScans) { outOfBoundsPlayerCoroutines[playerIndex] = StartCoroutine(OutOfBoundsCorrection(playerIndex));  break; }
         }
 
 
         // TOP RIGHT TRACKER
         missScans = 0;
+        outOfBounds = 0;
         pixelRange = 20;
         yHit = currentPS.topR.y - pixelRange;
         xHit = currentPS.topR.x - pixelRange;
@@ -790,7 +818,7 @@ public class ScreenDetector : MonoBehaviour
             if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
                 yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
             {
-                isOutOfBounds = true;
+                outOfBounds++;
                 currentPS.topR = new Vector2Int(currentPS.scanFrameMinX + screenWidth / 2, currentPS.scanFrameMinY + screenHeight / 2);
             }
             else
@@ -799,8 +827,8 @@ public class ScreenDetector : MonoBehaviour
                 isTopRSearching = false;
             }
 
-            if (isTopRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
-            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
+            if (isTopRSearching == true && missScans < maxAdditionalScans) { pixelRange += 10; missScans++; }
+            else if (outOfBounds > maxAdditionalScans || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
 
 
         }
@@ -808,6 +836,7 @@ public class ScreenDetector : MonoBehaviour
 
         // BOTTOM RIGHT TRACKER
         missScans = 0;
+        outOfBounds = 0;
         pixelRange = 10;
         yHit = currentPS.botR.y + pixelRange;
         xHit = currentPS.botR.x - pixelRange;
@@ -835,7 +864,7 @@ public class ScreenDetector : MonoBehaviour
             if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
                 yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
             {
-                isOutOfBounds = true;
+                outOfBounds++;
                 currentPS.botR = new Vector2Int(currentPS.scanFrameMinX + screenWidth / 2, currentPS.scanFrameMinY + screenHeight / 2);
             }
             else
@@ -844,14 +873,15 @@ public class ScreenDetector : MonoBehaviour
                 isBotRSearching = false;
             }
 
-            if (isBotRSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
-            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
+            if (isBotRSearching == true && missScans < maxAdditionalScans) { pixelRange += 10; missScans++; }
+            else if (outOfBounds > maxAdditionalScans || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
 
         }
 
 
         // BOTTOM Left TRACKER
         missScans = 0;
+        outOfBounds = 0;
         pixelRange = 10;
         yHit = currentPS.botL.y + pixelRange;
         xHit = currentPS.botL.x + pixelRange;
@@ -878,7 +908,7 @@ public class ScreenDetector : MonoBehaviour
             if (xHit < currentPS.scanFrameMinX || xHit > currentPS.scanFrameMaxX ||
                 yHit < currentPS.scanFrameMinY || yHit > currentPS.scanFrameMaxY)
             {
-                isOutOfBounds = true;
+                outOfBounds++;
                 currentPS.botL = new Vector2Int(currentPS.scanFrameMinX + screenWidth / 2, currentPS.scanFrameMinY + screenHeight / 2);
             }
             else
@@ -887,8 +917,8 @@ public class ScreenDetector : MonoBehaviour
                 isBotLSearching = false;
             }
 
-            if (isBotLSearching == true && isOutOfBounds == false) { pixelRange += 10; missScans++; }
-            else if (isOutOfBounds == true || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
+            if (isBotLSearching == true && missScans < maxAdditionalScans) { pixelRange += 10; missScans++; }
+            else if (outOfBounds > maxAdditionalScans || missScans > maxAdditionalScans) { currentPS.isCurrentlyActive = false; OutOfBoundsCorrection(playerIndex); break; }
         }
 
         currentPS.isCurrentlyActive = true;
