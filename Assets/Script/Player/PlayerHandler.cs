@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -22,7 +23,9 @@ public class PlayerHandler : MonoBehaviour
 
     [Header("Snake Stuff")]
     public GameObject SnakeHead;
+    public Vector3 SnakeSpawnLocation;
     public SnakeHead sh;
+    public Coroutine snakeSpawnCoro;
     
 
     [Header("References")]
@@ -35,20 +38,12 @@ public class PlayerHandler : MonoBehaviour
     private void Awake()
     {
         GameManager.instance.targets.Add(gameObject);
-
-        sh.PlayerHandler = this;
-        sh.PlayerTransform = this.transform;
-    }
-
-    private void Start()
-    {
-        fh.PlayerColor = PlayerColor;
     }
 
     private void FixedUpdate()
     {
         if(canMove == false) { return; }
-        sh.HandleInput(thisPlayerInput.rotInput);
+        if (sh != null) { sh.HandleInput(thisPlayerInput.rotInput); }
 
 
         //// Flower COntrol
@@ -75,7 +70,48 @@ public class PlayerHandler : MonoBehaviour
 
     public void CollectOrb()
     {
-        flower.transform.localScale += Vector3.one * 0.1f;
+        StartCoroutine(GrowFlower(Vector3.one * 0.1f, 0.3f)); 
+    }
 
+
+    private IEnumerator GrowFlower(Vector3 growthAmount, float duration)
+    {
+        Vector3 initialScale = flower.transform.localScale;
+        Vector3 targetScale = initialScale + growthAmount;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            flower.transform.localScale = Vector3.Lerp(initialScale, targetScale, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the final scale is exact
+        flower.transform.localScale = targetScale;
+    }
+
+
+    public void SpawnSnake()
+    {
+        Debug.Log("Spawn Snake");
+        this.transform.localPosition = SnakeSpawnLocation;
+        this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+        this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y, this.transform.localEulerAngles.z);
+        GameObject newSnake = Instantiate(SnakeHead, thisTransform);
+        //newSnake.transform.localPosition = SnakeSpawnLocation;
+        sh = newSnake.GetComponent<SnakeHead>();
+        sh.PlayerHandler = this;
+        sh.PlayerTransform = this.transform;
+        sh.FlowerHandler.PlayerColor = PlayerColor;
+        flower = sh.FlowerHandler.gameObject;
+    }
+
+    public IEnumerator SpawnSnakeCoro()
+    {
+        Debug.Log("Start new SnakeSpawn Coro");
+        yield return new WaitForSeconds(1);
+        Debug.Log("Waited Start new SnakeSpawn Coro");
+        SpawnSnake();
     }
 }

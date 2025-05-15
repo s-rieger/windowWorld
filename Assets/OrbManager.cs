@@ -4,7 +4,7 @@ public class OrbManager : MonoBehaviour
 {
     public GameObject CollectableOrb;
     public Transform SpawnArea;
-
+    Vector3 targetSpawnLocation;
     public float maxX;
     public float minX;
     public float minY;
@@ -21,6 +21,14 @@ public class OrbManager : MonoBehaviour
     {
         GameObject newOrb = Instantiate(CollectableOrb, SpawnArea);
 
-        newOrb.transform.localPosition = new Vector3(Random.Range(minX, maxX), 50, Random.Range(minY, maxY));
+        targetSpawnLocation = new Vector3(Random.Range(minX, maxX), 50, Random.Range(minY, maxY));
+
+        while (Physics.CheckSphere(targetSpawnLocation, 10f))
+        {
+            targetSpawnLocation = new Vector3(Random.Range(minX, maxX), 50, Random.Range(minY, maxY));
+        }
+
+
+        newOrb.transform.localPosition = targetSpawnLocation;
     }
 }

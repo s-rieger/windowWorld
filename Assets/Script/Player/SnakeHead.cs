@@ -13,6 +13,8 @@ public class SnakeHead : MonoBehaviour
     public GameObject bodyPrefab;
     public int initialSize = 5;
     public float followDistance = 0.5f;
+    public float lifeTime = 0;
+    public float initialProtection = 2;
 
     private List<Transform> bodyParts = new List<Transform>();
 
@@ -36,6 +38,7 @@ public class SnakeHead : MonoBehaviour
 
     void Update()
     {
+        lifeTime += Time.deltaTime;
         if(PlayerHandler.canMove == false) { return; }
 
         Move();
@@ -53,8 +56,10 @@ public class SnakeHead : MonoBehaviour
 
     public void AddBodySegment(bool isTail)
     {
-        Vector3 newPos = bodyParts.Count == 0 ? transform.position - transform.forward * followDistance : bodyParts[bodyParts.Count - 1].position;
+        Vector3 newPos = bodyParts.Count == 0 ? transform.position - transform.forward * followDistance*2 : bodyParts[bodyParts.Count - 1].position - (transform.forward * followDistance*2);
         GameObject newPart = Instantiate(bodyPrefab, newPos, Quaternion.identity, PlayerTransform);
+        newPart.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+        newPart.transform.localEulerAngles = new Vector3(0, newPart.transform.localEulerAngles.y, newPart.transform.localEulerAngles.z);
 
         SnakeSegment ss = newPart.GetComponent<SnakeSegment>();
         if (isTail) { ss.SnakeTail.SetActive(true); ss.SnakeBody.SetActive(false);
@@ -77,7 +82,7 @@ public class SnakeHead : MonoBehaviour
     {
 
         Vector3 startPosition = PlayerHandler.transform.localPosition;
-        Vector3 targetPosition = new Vector3(startPosition.x, 0,0);
+        Vector3 targetPosition = new Vector3(startPosition.x, 0,300);
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -107,6 +112,7 @@ public class SnakeHead : MonoBehaviour
         if (other.CompareTag("Wall"))
         {
             Debug.Log("Hit Wall");
+            KillThisSnake();
         }
     }
 
@@ -114,9 +120,36 @@ public class SnakeHead : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("SnakeBody"))
         {
-            Debug.Log("Eaten by Snake");
-            Destroy(PlayerHandler.gameObject);
+            if(lifeTime < initialProtection) { return; }
+
+            if (bodyParts.Contains(collision.gameObject.transform))
+            {
+                Debug.Log("Hit Own Body");
+            }
+            else
+            {
+                Debug.Log("Hit Someones Body");
+            }
+            KillThisSnake();
+
         }
+    }
+
+    void KillThisSnake()
+    {
+        for (int i = 0; i < bodyParts.Count; i++)
+        {
+            Destroy(bodyParts[i].gameObject);
+        }
+        bodyParts.Clear();
+
+        if (PlayerHandler.snakeSpawnCoro != null) {
+            PlayerHandler.StopCoroutine(PlayerHandler.snakeSpawnCoro); 
+            PlayerHandler.snakeSpawnCoro = null; 
+        };
+        PlayerHandler.snakeSpawnCoro = PlayerHandler.StartCoroutine(PlayerHandler.SpawnSnakeCoro()); 
+
+        Destroy(this.gameObject);
     }
 
 }
