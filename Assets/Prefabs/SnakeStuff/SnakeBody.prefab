@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2171645413684465804
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4923128171469663823}
+  - component: {fileID: 2907581317223753559}
+  - component: {fileID: 5756021435971519850}
+  m_Layer: 0
+  m_Name: SnakeBody
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4923128171469663823
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171645413684465804}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 896793634349369390}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2907581317223753559
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171645413684465804}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.0209246, y: 1.9891675, z: 2.029779}
+  m_Center: {x: 0, y: 0.9945837, z: 0}
+--- !u!114 &5756021435971519850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171645413684465804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 992747a554184fe4aa93292188b38019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SnakeBody: {fileID: 5105174073832093452}
+  SnakeTail: {fileID: 2716255129020885250}
+  target: {fileID: 0}
+  followSpeed: 1
+  followDistance: 0
+--- !u!1001 &862637732013584325
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4923128171469663823}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5887709032145500473, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_Name
+      value: Snake
+      objectReference: {fileID: 0}
+    - target: {fileID: 3129044937978365056, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+--- !u!4 &896793634349369390 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+  m_PrefabInstance: {fileID: 862637732013584325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2716255129020885250 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5887709032145500473, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+  m_PrefabInstance: {fileID: 862637732013584325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5105174073832093452 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5557878136815687881, guid: 1406ce3fa3ce02c4ca1fe3cedae9f101, type: 3}
+  m_PrefabInstance: {fileID: 862637732013584325}
+  m_PrefabAsset: {fileID: 0}

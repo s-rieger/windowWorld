@@ -303,7 +303,7 @@ public class ScreenDetector : MonoBehaviour
         );
         resultDisplay.texture = outputTexture;
 
-        for (int i = 2; i < 3; i++)
+        for (int i = 1; i < 2; i++)
         {
             if (playerScreens[i].isCurrentlyActive == true) { continue; }
             else
@@ -377,6 +377,19 @@ public class ScreenDetector : MonoBehaviour
 
         RectTransform newScanProgressRectTransform = newScanProgressUIElement.GetComponent<RectTransform>();
         newScanProgressRectTransform.anchoredPosition = new Vector2(uiWidth - screenWidth - xOff, yOff); // x,y flipped?!
+    }
+
+    void PositionCornerTrackers(int playerIndex)
+    {
+        //Debug.Log("topR" + playerScreens[playerIndex].topR);
+        //Debug.Log("botL" + playerScreens[playerIndex].botL);
+
+        //PieChartHandlers[playerIndex].TopLeftTracker.anchoredPosition = (playerScreens[playerIndex].topL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        //PieChartHandlers[playerIndex].TopRightTracker.anchoredPosition = (playerScreens[playerIndex].topR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        //PieChartHandlers[playerIndex].BottomLeftTracker.anchoredPosition = (playerScreens[playerIndex].botL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY)); // * new Vector2(-1, 1) in case of flipping
+        //PieChartHandlers[playerIndex].BottomRightTracker.anchoredPosition = (playerScreens[playerIndex].botR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
+        
+        StartCoroutine(MoveCornerSmooth(playerIndex, 0.1f));
     }
 
     IEnumerator CallibratePlayer(int playerIndex)
@@ -580,6 +593,7 @@ public class ScreenDetector : MonoBehaviour
                 PieChartHandlers[playerIndex].infoText.text = "Go";
                 yield return new WaitForSeconds(1);
                 PieChartHandlers[playerIndex].infoText.text = "";
+                PieChartHandlers[playerIndex].InputDebug.SetActive(true);
 
                 ClearFrame(playerScreens[playerIndex]);
 
@@ -595,19 +609,6 @@ public class ScreenDetector : MonoBehaviour
                 PieChartHandlers[playerIndex].FillScanProgress(fillPercentage);
             }
         }
-    }
-
-    void PositionCornerTrackers(int playerIndex)
-    {
-        //Debug.Log("topR" + playerScreens[playerIndex].topR);
-        //Debug.Log("botL" + playerScreens[playerIndex].botL);
-
-        //PieChartHandlers[playerIndex].TopLeftTracker.anchoredPosition = (playerScreens[playerIndex].topL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
-        //PieChartHandlers[playerIndex].TopRightTracker.anchoredPosition = (playerScreens[playerIndex].topR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
-        //PieChartHandlers[playerIndex].BottomLeftTracker.anchoredPosition = (playerScreens[playerIndex].botL - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY)); // * new Vector2(-1, 1) in case of flipping
-        //PieChartHandlers[playerIndex].BottomRightTracker.anchoredPosition = (playerScreens[playerIndex].botR - new Vector2(playerScreens[playerIndex].scanFrameMinX, playerScreens[playerIndex].scanFrameMinY));
-        
-        StartCoroutine(MoveCornerSmooth(playerIndex, 0.1f));
     }
 
     IEnumerator MoveCornerSmooth(int playerIndex, float duration)

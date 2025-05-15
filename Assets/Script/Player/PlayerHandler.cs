@@ -6,38 +6,25 @@ public class PlayerHandler : MonoBehaviour
 {
     [Header("Player Stats")]
     public int playerIndex;
+    public Color PlayerColor;
 
     [Header("Player Movement Stats")]
     [SerializeField] private float playerRotSpeed;
     [SerializeField] private float playerMoveSpeed;
     [SerializeField] private float playerStretchSpeed;
 
-    [Header("Player Visuals")]
-    [SerializeField] SkinnedMeshRenderer skinMeshRend;
-    [SerializeField] Material  BlossomMat;
-    [SerializeField] private Color playerColor;
-    //[SerializeField] MeshRenderer meshRend;
+    [Header("Flower Stuff")]
+    public GameObject flower;
+    public FlowerHandler fh;
+
+
+    [Header("Snake Stuff")]
+    public GameObject SnakeHead;
+    public SnakeHead sh;
     
-    public Color PlayerColor
-    {
-        get
-        {
-            return playerColor;
-        }
-        set
-        {
-
-            playerColor = value;
-            //meshRend.material.color = playerColor;
-
-            skinMeshRend.material = new Material(BlossomMat);
-            skinMeshRend.material.color = playerColor;
-        }
-    }
 
     [Header("References")]
     public Transform thisTransform;
-    //public Vector2 rotInput;
     public float rotInput;
 
     public ScreenDetector.PlayerInput thisPlayerInput;
@@ -46,17 +33,30 @@ public class PlayerHandler : MonoBehaviour
     private void Awake()
     {
         GameManager.instance.targets.Add(gameObject);
+
+        sh.playerTransform = this.transform;
     }
-    
+
+    private void Start()
+    {
+        fh.PlayerColor = PlayerColor;
+    }
+
     private void FixedUpdate()
     {
-        // Calculate rotation amount for this frame
-        float rotationAmount = thisPlayerInput.rotInput * playerRotSpeed * Time.fixedDeltaTime;
+        sh.HandleInput(thisPlayerInput.rotInput);
 
-        // Apply rotation around z-axis
-        transform.Rotate(0f, rotationAmount, 0f, Space.Self);
 
-        transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
+        //// Flower COntrol
+        //// Calculate rotation amount for this frame
+        //float rotationAmount = thisPlayerInput.rotInput * playerRotSpeed * Time.fixedDeltaTime;
+
+        //// Apply rotation around z-axis
+        //transform.Rotate(0f, rotationAmount, 0f, Space.Self);
+
+        //transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
+
+
         #region Use Vec2 for rotattion
         //// Calculate the angle from the input
         //float targetAngle = Mathf.Atan2(rotInput.y, rotInput.x) * Mathf.Rad2Deg;
@@ -71,7 +71,7 @@ public class PlayerHandler : MonoBehaviour
 
     public void CollectOrb()
     {
-        transform.localScale += Vector3.one * 0.1f;
+        flower.transform.localScale += Vector3.one * 0.1f;
 
     }
 }
