@@ -568,24 +568,27 @@ public class ScreenDetector : MonoBehaviour
 
                 yield return new WaitForSeconds(1);
 
+
+                GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
+                //newPlayer.transform.localPosition = new Vector3(playerIndex * -180,200,500);
+                newPlayer.transform.localPosition = new Vector3(0,200,500);
+                newPlayer.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+                newPlayer.transform.localEulerAngles = new Vector3(0, newPlayer.transform.localEulerAngles.y, newPlayer.transform.localEulerAngles.z);
+
                 PlayerInput tmpInput = playerInputs[playerIndex];
                 tmpInput.rotInput = 0;
                 tmpInput.tiltUpDownInput = 0;
                 tmpInput.tiltLeftRightInput = 0;
                 playerInputs[playerIndex] = tmpInput;
 
-                GameObject newPlayer = Instantiate(PlayerGO, PlayerContainer);
-                newPlayer.transform.localPosition = new Vector3(playerIndex * -180,0,0);
-
                 PlayerHandler newPlayerHandler = newPlayer.GetComponent<PlayerHandler>();
                 newPlayerHandler.PlayerColor = colorList[playerIndex];
                 newPlayerHandler.playerIndex = playerIndex;
-                newPlayerHandler.thisPlayerInput = tmpInput;
+                newPlayerHandler.thisPlayerInput = playerInputs[playerIndex];
                 PlayerHandlers[playerIndex] = newPlayerHandler;
 
                 if (traceActive[playerIndex] == false)
                 {
-                    Debug.Log("Check if player is Active");
                     traceActive[playerIndex] = true;
                     tracePlayerCoroutines[playerIndex] = StartCoroutine(TracePlayers(playerIndex));
                 }
@@ -677,7 +680,8 @@ public class ScreenDetector : MonoBehaviour
     {
         Debug.Log("Start Out of bounds correction");
 
-        StopCoroutine(tracePlayerCoroutines[playerIndex]);
+        if (tracePlayerCoroutines[playerIndex] != null) { StopCoroutine(tracePlayerCoroutines[playerIndex]); }
+
         tracePlayerCoroutines[playerIndex] = null;
         traceActive[playerIndex] = false;
 

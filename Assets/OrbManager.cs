@@ -21,6 +21,6 @@ public class OrbManager : MonoBehaviour
     {
         GameObject newOrb = Instantiate(CollectableOrb, SpawnArea);
 
-        newOrb.transform.localPosition = new Vector3(Random.Range(minX, maxX), 0, Random.Range(minY, maxY));
+        newOrb.transform.localPosition = new Vector3(Random.Range(minX, maxX), 50, Random.Range(minY, maxY));
     }
 }

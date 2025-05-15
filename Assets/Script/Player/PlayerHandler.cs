@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerHandler : MonoBehaviour
 {
+    public bool canMove = false;
+
     [Header("Player Stats")]
     public int playerIndex;
     public Color PlayerColor;
@@ -34,7 +36,8 @@ public class PlayerHandler : MonoBehaviour
     {
         GameManager.instance.targets.Add(gameObject);
 
-        sh.playerTransform = this.transform;
+        sh.PlayerHandler = this;
+        sh.PlayerTransform = this.transform;
     }
 
     private void Start()
@@ -44,6 +47,7 @@ public class PlayerHandler : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if(canMove == false) { return; }
         sh.HandleInput(thisPlayerInput.rotInput);
 
 
