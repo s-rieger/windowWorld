@@ -504,6 +504,11 @@ public class ScreenDetector : MonoBehaviour
             else if(isOnEdge == true)
             {
                 PieChartHandlers[playerIndex].infoText.text = "Too close \nto Edge";
+                if (stopCallibratePlayerCoroutines[playerIndex] == null)
+                {
+                    stopCallibratePlayerCoroutines[playerIndex] = StartCoroutine(StopCallibrationCoroutine(playerIndex));
+                }
+
                 continue;
             }
 
@@ -583,6 +588,7 @@ public class ScreenDetector : MonoBehaviour
                 newPlayerHandler.thisPlayerInput = playerInputs[playerIndex];
                 newPlayerHandler.SnakeSpawnLocation = new Vector3(playerIndex * -300, 250, 400);
                 newPlayerHandler.StartCoroutine(newPlayerHandler.SpawnSnakeCoro());
+                newPlayerHandler.playerPieChartHandler = PieChartHandlers[playerIndex];
 
                 PlayerHandlers[playerIndex] = newPlayerHandler;
                 ArduinoSetup.instance.SetLedColorForPlayer(playerIndex + 1, "GREEN");
@@ -673,6 +679,7 @@ public class ScreenDetector : MonoBehaviour
 
         JoinBtn.gameObject.SetActive(true);
     }
+
 
     IEnumerator OutOfBoundsCorrection(int playerIndex)
     {

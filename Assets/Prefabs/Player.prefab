@@ -55,5 +55,6 @@ MonoBehaviour:
   SnakeHead: {fileID: 6286671402800526387, guid: 7cb983478f282164bba21a06a0f28c94, type: 3}
   SnakeSpawnLocation: {x: 0, y: 0, z: 0}
   sh: {fileID: 0}
+  SnakeRB: []
   thisTransform: {fileID: 3828951598001085430}
   rotInput: 0

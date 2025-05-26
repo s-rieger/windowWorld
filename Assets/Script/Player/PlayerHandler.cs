@@ -36,6 +36,7 @@ public class PlayerHandler : MonoBehaviour
 
     public ScreenDetector.PlayerInput thisPlayerInput;
 
+    public PieChartHandler playerPieChartHandler;
     
     private void Awake()
     {
@@ -47,27 +48,43 @@ public class PlayerHandler : MonoBehaviour
         if(canMove == false) { return; }
         if (sh != null) { sh.HandleInput(thisPlayerInput.rotInput); }
 
+        if(thisPlayerInput.rotInput < 0)
+        {
+            playerPieChartHandler.TurnLeft.SetActive(true);
+            playerPieChartHandler.TurnRight.SetActive(false);
+        }
+        else if (thisPlayerInput.rotInput > 0)
+        {
+            playerPieChartHandler.TurnLeft.SetActive(false);
+            playerPieChartHandler.TurnRight.SetActive(true);
+        }
+        else
+        {
+            playerPieChartHandler.TurnLeft.SetActive(false);
+            playerPieChartHandler.TurnRight.SetActive(false);
+        }
+
 
         //// Flower COntrol
         //// Calculate rotation amount for this frame
         //float rotationAmount = thisPlayerInput.rotInput * playerRotSpeed * Time.fixedDeltaTime;
 
-        //// Apply rotation around z-axis
-        //transform.Rotate(0f, rotationAmount, 0f, Space.Self);
+            //// Apply rotation around z-axis
+            //transform.Rotate(0f, rotationAmount, 0f, Space.Self);
 
-        //transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
+            //transform.localPosition += transform.forward * thisPlayerInput.tiltUpDownInput * playerMoveSpeed * Time.fixedDeltaTime; 
 
 
-        #region Use Vec2 for rotattion
-        //// Calculate the angle from the input
-        //float targetAngle = Mathf.Atan2(rotInput.y, rotInput.x) * Mathf.Rad2Deg;
+            #region Use Vec2 for rotattion
+            //// Calculate the angle from the input
+            //float targetAngle = Mathf.Atan2(rotInput.y, rotInput.x) * Mathf.Rad2Deg;
 
-        //// Create a Quaternion representing the target rotation
-        //Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetAngle);
+            //// Create a Quaternion representing the target rotation
+            //Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetAngle);
 
-        //// Smoothly rotate towards the target
-        //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, playerRotSpeed * Time.fixedDeltaTime);
-        #endregion
+            //// Smoothly rotate towards the target
+            //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, playerRotSpeed * Time.fixedDeltaTime);
+            #endregion
     }
 
     public void CollectOrb()

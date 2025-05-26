@@ -27,6 +27,9 @@ public class PieChartHandler : MonoBehaviour
     public RectTransform PixelScannerTracker;
     public TextMeshProUGUI PixelScannerValueText;
 
+    [Header("Input Images")]
+    public GameObject TurnLeft;
+    public GameObject TurnRight;
 
     void Start()
     {
@@ -35,6 +38,8 @@ public class PieChartHandler : MonoBehaviour
         infoText.text = "";
         InputDebug.SetActive(false);
         CornerTrackers.SetActive(false);
+        TurnLeft.SetActive(false);
+        TurnRight.SetActive(false);
     }
 
     public void FillScanProgress(float fillValue)

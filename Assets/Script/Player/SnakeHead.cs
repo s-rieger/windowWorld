@@ -46,7 +46,7 @@ public class SnakeHead : MonoBehaviour
 
     public void HandleInput(float rotInput)
     {
-        transform.Rotate(Vector3.up * rotInput * turnSpeed * Time.deltaTime * -1);
+        transform.Rotate(Vector3.up * rotInput * turnSpeed * Time.deltaTime); // -1 so its initally reversed but more intuitional ?!?!?!
     }
 
     void Move()
