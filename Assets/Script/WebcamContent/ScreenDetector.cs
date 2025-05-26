@@ -587,7 +587,7 @@ public class ScreenDetector : MonoBehaviour
                 newPlayerHandler.playerIndex = playerIndex;
                 newPlayerHandler.thisPlayerInput = playerInputs[playerIndex];
                 newPlayerHandler.SnakeSpawnLocation = new Vector3(playerIndex * -300, 250, 400);
-                newPlayerHandler.StartCoroutine(newPlayerHandler.SpawnSnakeCoro());
+                newPlayerHandler.SpawnSnake();
                 newPlayerHandler.playerPieChartHandler = PieChartHandlers[playerIndex];
 
                 PlayerHandlers[playerIndex] = newPlayerHandler;

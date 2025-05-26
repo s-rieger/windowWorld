@@ -95,10 +95,10 @@ public class SnakeHead : MonoBehaviour
             item.isKinematic = true;
             item.transform.GetChild(0).gameObject.SetActive(false);
             item.position = startPosition;
-            item.linearVelocity = Vector3.zero; // optional: reset velocity if needed
-            item.angularVelocity = Vector3.zero; // optional: reset rotation momentum
             item.transform.GetChild(0).gameObject.SetActive(true);
             item.isKinematic = false;
+            item.linearVelocity = Vector3.zero; // optional: reset velocity if needed
+            item.angularVelocity = Vector3.zero; // optional: reset rotation momentum
         }
 
 
@@ -188,7 +188,7 @@ public class SnakeHead : MonoBehaviour
             PlayerHandler.StopCoroutine(PlayerHandler.snakeSpawnCoro); 
             PlayerHandler.snakeSpawnCoro = null; 
         };
-        PlayerHandler.snakeSpawnCoro = PlayerHandler.StartCoroutine(PlayerHandler.SpawnSnakeCoro()); 
+        PlayerHandler.SpawnSnake();
 
         Destroy(this.gameObject);
     }
