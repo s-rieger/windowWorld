@@ -112,6 +112,7 @@ public class PlayerHandler : MonoBehaviour
         this.transform.localPosition = SnakeSpawnLocation;
         this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
         GameObject newSnake = Instantiate(SnakeHead, thisTransform);
+        newSnake.transform.rotation = Quaternion.Euler(0, 0, 0);
         Rigidbody snakeHeadRB = newSnake.GetComponent<Rigidbody>();
         SnakeRB.Add(snakeHeadRB);
         //newSnake.transform.localPosition = SnakeSpawnLocation;
