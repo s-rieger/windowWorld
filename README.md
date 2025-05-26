@@ -16,3 +16,4 @@ Upon successfull registration/callibration, a snake with a flower in that player
  - 6 two-color LED module (Ky-029)
  -1 Photoresistor Module ( Ky-018)
 
+![windowWorldAdurino](https://github.com/user-attachments/assets/ad8e2696-073a-4386-9db4-09f93b6651d6)
