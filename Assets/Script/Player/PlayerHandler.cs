@@ -37,6 +37,7 @@ public class PlayerHandler : MonoBehaviour
     private void Awake()
     {
         GameManager.instance.targets.Add(gameObject);
+        this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
     }
 
     private void FixedUpdate()
@@ -111,12 +112,15 @@ public class PlayerHandler : MonoBehaviour
     {
         Debug.Log("Spawn Snake");
         this.transform.localPosition = SnakeSpawnLocation;
-        this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+
         GameObject newSnake = Instantiate(SnakeHead, thisTransform);
-        newSnake.transform.rotation = Quaternion.Euler(0, 0, 0);
         Rigidbody snakeHeadRB = newSnake.GetComponent<Rigidbody>();
         SnakeRB.Add(snakeHeadRB);
-        //newSnake.transform.localPosition = SnakeSpawnLocation;
+
+        snakeHeadRB.isKinematic = true;
+        newSnake.transform.localRotation = this.transform.rotation;
+        snakeHeadRB.isKinematic = false;
+
         sh = newSnake.GetComponent<SnakeHead>();
         sh.PlayerHandler = this;
         sh.PlayerTransform = this.transform;
