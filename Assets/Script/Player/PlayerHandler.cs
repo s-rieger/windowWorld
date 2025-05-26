@@ -33,6 +33,7 @@ public class PlayerHandler : MonoBehaviour
     [Header("References")]
     public Transform thisTransform;
     public float rotInput;
+    public EnemyAIRunner enemyHandler;
 
     public ScreenDetector.PlayerInput thisPlayerInput;
 
