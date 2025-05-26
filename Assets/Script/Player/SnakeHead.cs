@@ -1,8 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
-using static UnityEditor.Progress;
-using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 public class SnakeHead : MonoBehaviour
 {
