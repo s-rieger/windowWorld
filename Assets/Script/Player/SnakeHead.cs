@@ -1,10 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using static UnityEditor.Progress;
+using UnityEngine.UIElements;
 
 public class SnakeHead : MonoBehaviour
 {
     public PlayerHandler PlayerHandler;
+
+    public Rigidbody rb;
 
     public FlowerHandler FlowerHandler;
     public Transform PlayerTransform;
@@ -16,21 +20,28 @@ public class SnakeHead : MonoBehaviour
     public float lifeTime = 0;
     public float initialProtection = 2;
     public float jumnpOutOfWindowTime = 1;
+    public float snakeEjectionForce = 500;
 
     private List<Transform> bodyParts = new List<Transform>();
 
     void Start()
     {
+        if(rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+        rb.isKinematic = true;  // disables physics on this object
+
         // Add initial body parts
         for (int i = 0; i < initialSize; i++)
         {
             if(i+1 == initialSize)
             {
-                AddBodySegment(true);
+                AddBodySegment(true, i);
             }
             else
             {
-                AddBodySegment(false);
+                AddBodySegment(false, i);
             }
         }
 
@@ -39,10 +50,19 @@ public class SnakeHead : MonoBehaviour
 
     void Update()
     {
+
+        Debug.Log("Rotation: " + this.transform.eulerAngles);
         lifeTime += Time.deltaTime;
         if(PlayerHandler.canMove == false) { return; }
 
+
         Move();
+
+        if(this.transform.position.y < -3)
+        {
+            Debug.Log("Snake Fell through Ground");
+            StartCoroutine(JumpOutOfWindow(jumnpOutOfWindowTime));
+        }
     }
 
     public void HandleInput(float rotInput)
@@ -53,19 +73,30 @@ public class SnakeHead : MonoBehaviour
     void Move()
     {
         transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        //this.transform.rotation = Quaternion.Euler(this.transform.rotation.x, this.transform.rotation.y, 0);
+
     }
 
-    public void AddBodySegment(bool isTail)
+    public void AddBodySegment(bool isTail, int index)
     {
-        Vector3 newPos = bodyParts.Count == 0 ? transform.position - transform.forward * followDistance*2 : bodyParts[bodyParts.Count - 1].position - (transform.forward * followDistance*2);
+        Vector3 newPos = bodyParts.Count == 0 ? -transform.forward * index : bodyParts[bodyParts.Count - 1].position + (-transform.forward * index);
+
         GameObject newPart = Instantiate(bodyPrefab, newPos, Quaternion.identity, PlayerTransform);
         newPart.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
         newPart.transform.localEulerAngles = new Vector3(0, newPart.transform.localEulerAngles.y, newPart.transform.localEulerAngles.z);
+
+        Rigidbody newRB = newPart.GetComponent<Rigidbody>();
+        newRB.isKinematic = true;
+        newRB.transform.GetChild(0).gameObject.SetActive(false);
+        newPart.transform.position = newPos;
+        newRB.isKinematic = false;
+
 
         Rigidbody snakebodyRB = newPart.GetComponent<Rigidbody>();
         PlayerHandler.SnakeRB.Add(snakebodyRB);
 
         SnakeSegment ss = newPart.GetComponent<SnakeSegment>();
+        ss.SnakeHead = this;
         if (isTail) { ss.SnakeTail.SetActive(true); ss.SnakeBody.SetActive(false);
         }
         else
@@ -82,37 +113,39 @@ public class SnakeHead : MonoBehaviour
         bodyParts.Add(newTransform);
     }
 
-    IEnumerator JumpOutOfWindow(float duration)
+    public IEnumerator JumpOutOfWindow(float duration)
     {
         PlayerHandler.canMove = false;
+        yield return new WaitForSeconds(.1f);
 
-        Vector3 startPosition = PlayerHandler.transform.localPosition;
-        Vector3 targetPosition = new Vector3(startPosition.x, 0,300);
-        float elapsed = 0f;
+        rb.isKinematic = true;
 
-        foreach (var item in PlayerHandler.SnakeRB)
+        this.transform.position = PlayerHandler.transform.position - Vector3.forward * 100;
+        //this.transform.localRotation = Quaternion.LookRotation(PlayerHandler.transform.forward, Vector3.up);
+        //this.transform.transform.eulerAngles = Vector3.zero;
+        this.transform.transform.localEulerAngles = Vector3.zero;
+
+        Vector3 startPosition = PlayerHandler.transform.position;
+        for (int i = 0; i < PlayerHandler.SnakeRB.Count; i++)
         {
-            item.isKinematic = true;
-            item.transform.GetChild(0).gameObject.SetActive(false);
-            item.position = startPosition;
-            item.transform.GetChild(0).gameObject.SetActive(true);
-            item.isKinematic = false;
-            item.linearVelocity = Vector3.zero; // optional: reset velocity if needed
-            item.angularVelocity = Vector3.zero; // optional: reset rotation momentum
+            PlayerHandler.SnakeRB[i].transform.GetChild(0).gameObject.SetActive(false);
+            PlayerHandler.SnakeRB[i].isKinematic = true;
+            PlayerHandler.SnakeRB[i].useGravity = false;
+            PlayerHandler.SnakeRB[i].rotation = PlayerHandler.transform.rotation;
+            //PlayerHandler.SnakeRB[i].transform.eulerAngles = Vector3.zero;
+            PlayerHandler.SnakeRB[i].transform.position = this.transform.position + this.transform.forward * i * 50 + transform.up * i * 50;
+            PlayerHandler.SnakeRB[i].AddForce(-transform.forward * snakeEjectionForce);
+            PlayerHandler.SnakeRB[i].transform.GetChild(0).gameObject.SetActive(true);
+            PlayerHandler.SnakeRB[i].isKinematic = false;
         }
-
-
-        while (elapsed < duration)
-        {
-            PlayerHandler.transform.localPosition = Vector3.Lerp(startPosition, targetPosition, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        // Ensure final position is exactly the target
-        PlayerHandler.transform.localPosition = targetPosition;
-
         PlayerHandler.canMove = true;
+
+        yield return new WaitForSeconds(1);
+
+        for (int i = 0; i < PlayerHandler.SnakeRB.Count; i++)
+        {
+            PlayerHandler.SnakeRB[i].useGravity = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -129,24 +162,8 @@ public class SnakeHead : MonoBehaviour
         if (other.CompareTag("Wall"))
         {
             Debug.Log("Hit Wall");
-            //KillThisSnake();
-            //PlayerHandler.transform.rotation = Quaternion.identity;
-            //PlayerHandler.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
-            //PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
-            //PlayerHandler.transform.localPosition = Vector3.zero;
-            //PlayerHandler.transform.localEulerAngles = new Vector3(0, PlayerHandler.transform.localEulerAngles.y, PlayerHandler.transform.localEulerAngles.z);
-            Vector3 newPosition = new Vector3(PlayerHandler.thisTransform.position.x, PlayerHandler.thisTransform.position.y + 300, 
-                PlayerHandler.thisTransform.position.z);
-            this.gameObject.transform.position = newPosition;
-            this.gameObject.transform.rotation = PlayerHandler.thisTransform.rotation; 
-            
-            for(int i = 0; i < bodyParts.Count; i++)
-            {
-                bodyParts[i].position = newPosition;
-                bodyParts[i].rotation = PlayerHandler.thisTransform.rotation;
-            }
-            
-            // StartCoroutine(JumpOutOfWindow(2));
+            //KillThisSnake();            
+            StartCoroutine(JumpOutOfWindow(2));
         }
     }
 
@@ -169,7 +186,6 @@ public class SnakeHead : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {
-            PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
             StartCoroutine(JumpOutOfWindow(jumnpOutOfWindowTime));
         }
     }
@@ -188,7 +204,7 @@ public class SnakeHead : MonoBehaviour
             PlayerHandler.StopCoroutine(PlayerHandler.snakeSpawnCoro); 
             PlayerHandler.snakeSpawnCoro = null; 
         };
-        PlayerHandler.SpawnSnake();
+        //PlayerHandler.SpawnSnake();
 
         Destroy(this.gameObject);
     }

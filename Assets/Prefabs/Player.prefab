@@ -47,9 +47,6 @@ MonoBehaviour:
   canMove: 0
   playerIndex: 0
   PlayerColor: {r: 0, g: 0, b: 0, a: 0}
-  playerRotSpeed: 63.5
-  playerMoveSpeed: 30
-  playerStretchSpeed: 3
   flower: {fileID: 0}
   fh: {fileID: 0}
   SnakeHead: {fileID: 6286671402800526387, guid: 7cb983478f282164bba21a06a0f28c94, type: 3}

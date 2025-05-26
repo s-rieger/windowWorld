@@ -58,6 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerHandler: {fileID: 0}
+  rb: {fileID: 4262241979984363960}
   FlowerHandler: {fileID: 7839391540018126806}
   PlayerTransform: {fileID: 0}
   moveSpeed: 75
@@ -68,6 +69,7 @@ MonoBehaviour:
   lifeTime: 0
   initialProtection: 2
   jumnpOutOfWindowTime: 1
+  snakeEjectionForce: 5000
 --- !u!136 &4668061021700031697
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -99,7 +101,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6286671402800526387}
   serializedVersion: 4
-  m_Mass: 1500
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -114,7 +116,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 64
   m_CollisionDetection: 0

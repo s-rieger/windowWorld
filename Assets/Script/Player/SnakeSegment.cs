@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SnakeSegment : MonoBehaviour
 {
+    public SnakeHead SnakeHead;
     public GameObject SnakeBody;
     public GameObject SnakeTail;
 
@@ -26,5 +27,11 @@ public class SnakeSegment : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, followSpeed * Time.deltaTime);
         }
+
+        if (this.transform.position.y < -3)
+        {
+            StartCoroutine(SnakeHead.JumpOutOfWindow(SnakeHead.jumnpOutOfWindowTime));
+        }
+
     }
 }
