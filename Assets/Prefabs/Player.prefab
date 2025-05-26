@@ -48,7 +48,7 @@ MonoBehaviour:
   playerIndex: 0
   PlayerColor: {r: 0, g: 0, b: 0, a: 0}
   playerRotSpeed: 63.5
-  playerMoveSpeed: 20
+  playerMoveSpeed: 30
   playerStretchSpeed: 3
   flower: {fileID: 0}
   fh: {fileID: 0}
@@ -58,3 +58,4 @@ MonoBehaviour:
   SnakeRB: []
   thisTransform: {fileID: 3828951598001085430}
   rotInput: 0
+  playerPieChartHandler: {fileID: 0}
