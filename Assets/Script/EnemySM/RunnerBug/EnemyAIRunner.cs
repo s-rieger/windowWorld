@@ -6,7 +6,6 @@ public class EnemyAIRunner : MonoBehaviour
 {
     [Header("Agent")] 
     private NavMeshAgent agent;
-    public List<GameObject> players = new List<GameObject>();
     
     [Header("Agent Settings")]
     public float roamingDistance = 50f;
@@ -71,12 +70,10 @@ public class EnemyAIRunner : MonoBehaviour
             {
                 targetPosition = hit.position;
                 agent.SetDestination(targetPosition);
-                Debug.Log("Running away to: " + targetPosition);
             }
         }
         else
         {
-            Debug.Log("No targets within escape distance. Setting random destination.");
             SetRandomDestination();
         }
     }

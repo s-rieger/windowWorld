@@ -60,7 +60,7 @@ MonoBehaviour:
   PlayerHandler: {fileID: 0}
   FlowerHandler: {fileID: 7839391540018126806}
   PlayerTransform: {fileID: 0}
-  moveSpeed: 75
+  moveSpeed: 100
   turnSpeed: 70
   bodyPrefab: {fileID: 2171645413684465804, guid: 9e00714280ca18342b25596a9f419346, type: 3}
   initialSize: 5

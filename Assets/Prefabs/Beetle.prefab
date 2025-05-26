@@ -172,9 +172,10 @@ GameObject:
   - component: {fileID: 2120138376846508297}
   - component: {fileID: 2934486230366958589}
   - component: {fileID: 387652575432658984}
+  - component: {fileID: 1695449264271495194}
   m_Layer: 0
   m_Name: Beetle
-  m_TagString: Untagged
+  m_TagString: Collectable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -229,10 +230,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb3bb3fd8ca1bd14a9154aebc1fcd81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  players: []
-  searchRadius: 10
-  speed: 3.5
   roamingDistance: 50
+  escapeDistance: 20
+--- !u!136 &1695449264271495194
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2808706893143362643}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 31.6
+  m_Height: 149.6
+  m_Direction: 2
+  m_Center: {x: 1.61, y: 26.11, z: -32.6}
 --- !u!1 &3123125194707813847
 GameObject:
   m_ObjectHideFlags: 0
