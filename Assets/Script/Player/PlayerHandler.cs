@@ -12,11 +12,6 @@ public class PlayerHandler : MonoBehaviour
     public int playerIndex;
     public Color PlayerColor;
 
-    [Header("Player Movement Stats")]
-    [SerializeField] private float playerRotSpeed;
-    [SerializeField] private float playerMoveSpeed;
-    [SerializeField] private float playerStretchSpeed;
-
     [Header("Flower Stuff")]
     public GameObject flower;
     public FlowerHandler fh;
@@ -117,8 +112,8 @@ public class PlayerHandler : MonoBehaviour
         Debug.Log("Spawn Snake");
         this.transform.localPosition = SnakeSpawnLocation;
         this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
-        this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y, this.transform.localEulerAngles.z);
         GameObject newSnake = Instantiate(SnakeHead, thisTransform);
+        newSnake.transform.rotation = Quaternion.Euler(0, 0, 0);
         Rigidbody snakeHeadRB = newSnake.GetComponent<Rigidbody>();
         SnakeRB.Add(snakeHeadRB);
         //newSnake.transform.localPosition = SnakeSpawnLocation;
@@ -127,13 +122,5 @@ public class PlayerHandler : MonoBehaviour
         sh.PlayerTransform = this.transform;
         sh.FlowerHandler.PlayerColor = PlayerColor;
         flower = sh.FlowerHandler.gameObject;
-    }
-
-    public IEnumerator SpawnSnakeCoro()
-    {
-        Debug.Log("Start new SnakeSpawn Coro");
-        yield return new WaitForSeconds(1);
-        Debug.Log("Waited Start new SnakeSpawn Coro");
-        SpawnSnake();
     }
 }

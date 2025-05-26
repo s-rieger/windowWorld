@@ -15,6 +15,7 @@ public class SnakeHead : MonoBehaviour
     public float followDistance = 0.5f;
     public float lifeTime = 0;
     public float initialProtection = 2;
+    public float jumnpOutOfWindowTime = 1;
 
     private List<Transform> bodyParts = new List<Transform>();
 
@@ -33,7 +34,7 @@ public class SnakeHead : MonoBehaviour
             }
         }
 
-        StartCoroutine(JumpOutOfWindow(2));
+        StartCoroutine(JumpOutOfWindow(jumnpOutOfWindowTime));
     }
 
     void Update()
@@ -91,13 +92,13 @@ public class SnakeHead : MonoBehaviour
 
         foreach (var item in PlayerHandler.SnakeRB)
         {
-            item.isKinematic = false;
+            item.isKinematic = true;
             item.transform.GetChild(0).gameObject.SetActive(false);
             item.position = startPosition;
+            item.transform.GetChild(0).gameObject.SetActive(true);
+            item.isKinematic = false;
             item.linearVelocity = Vector3.zero; // optional: reset velocity if needed
             item.angularVelocity = Vector3.zero; // optional: reset rotation momentum
-            item.transform.GetChild(0).gameObject.SetActive(true);
-            item.isKinematic = true;
         }
 
 
@@ -139,7 +140,7 @@ public class SnakeHead : MonoBehaviour
             this.gameObject.transform.position = newPosition;
             this.gameObject.transform.rotation = PlayerHandler.thisTransform.rotation; 
             
-            for(int i = 0; i <= bodyParts.Count; i++)
+            for(int i = 0; i < bodyParts.Count; i++)
             {
                 bodyParts[i].position = newPosition;
                 bodyParts[i].rotation = PlayerHandler.thisTransform.rotation;
@@ -169,7 +170,7 @@ public class SnakeHead : MonoBehaviour
         else if (collision.gameObject.CompareTag("Wall"))
         {
             PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
-            StartCoroutine(JumpOutOfWindow(2));
+            StartCoroutine(JumpOutOfWindow(jumnpOutOfWindowTime));
         }
     }
 
@@ -187,7 +188,7 @@ public class SnakeHead : MonoBehaviour
             PlayerHandler.StopCoroutine(PlayerHandler.snakeSpawnCoro); 
             PlayerHandler.snakeSpawnCoro = null; 
         };
-        PlayerHandler.snakeSpawnCoro = PlayerHandler.StartCoroutine(PlayerHandler.SpawnSnakeCoro()); 
+        PlayerHandler.SpawnSnake();
 
         Destroy(this.gameObject);
     }
