@@ -134,7 +134,18 @@ public class SnakeHead : MonoBehaviour
             //PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
             //PlayerHandler.transform.localPosition = Vector3.zero;
             //PlayerHandler.transform.localEulerAngles = new Vector3(0, PlayerHandler.transform.localEulerAngles.y, PlayerHandler.transform.localEulerAngles.z);
-            StartCoroutine(JumpOutOfWindow(2));
+            Vector3 newPosition = new Vector3(PlayerHandler.thisTransform.position.x, PlayerHandler.thisTransform.position.y + 300, 
+                PlayerHandler.thisTransform.position.z);
+            this.gameObject.transform.position = newPosition;
+            this.gameObject.transform.rotation = PlayerHandler.thisTransform.rotation; 
+            
+            for(int i = 0; i <= bodyParts.Count; i++)
+            {
+                bodyParts[i].position = newPosition;
+                bodyParts[i].rotation = PlayerHandler.thisTransform.rotation;
+            }
+            
+            // StartCoroutine(JumpOutOfWindow(2));
         }
     }
 
