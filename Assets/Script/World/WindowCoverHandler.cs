@@ -32,9 +32,12 @@ public class WindowCoverHandler : MonoBehaviour
 
     IEnumerator OpenWindowCoro(int index)
     {
-        float targetLeftRot = 130 - index*4f;
-        float targetRightRot = 120 - index*15;
+        // Comment section is for perspective camera
+        //float targetLeftRot = 130 - index*4f;
+        //float targetRightRot = 120 - index*15;
 
+        float targetLeftRot = 120;
+        float targetRightRot = 60;
 
         Quaternion startRotationLeft = leftCover.rotation;
         Quaternion startRotationRight = rightCover.rotation;

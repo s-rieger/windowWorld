@@ -229,7 +229,8 @@ Shader "Roystan/Grass"
 		{
 			Tags
 			{
-				"LightMode" = "ShadowCaster"
+				// "LightMode" = "ShadowCaster"
+				"LightMode" = "DepthOnly" 
 			}
 
 			CGPROGRAM

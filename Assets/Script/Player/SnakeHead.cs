@@ -46,7 +46,7 @@ public class SnakeHead : MonoBehaviour
 
     public void HandleInput(float rotInput)
     {
-        transform.Rotate(Vector3.up * rotInput * turnSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up * rotInput * turnSpeed * Time.deltaTime * -1);
     }
 
     void Move()
@@ -60,6 +60,9 @@ public class SnakeHead : MonoBehaviour
         GameObject newPart = Instantiate(bodyPrefab, newPos, Quaternion.identity, PlayerTransform);
         newPart.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
         newPart.transform.localEulerAngles = new Vector3(0, newPart.transform.localEulerAngles.y, newPart.transform.localEulerAngles.z);
+
+        Rigidbody snakebodyRB = newPart.GetComponent<Rigidbody>();
+        PlayerHandler.SnakeRB.Add(snakebodyRB);
 
         SnakeSegment ss = newPart.GetComponent<SnakeSegment>();
         if (isTail) { ss.SnakeTail.SetActive(true); ss.SnakeBody.SetActive(false);
@@ -80,10 +83,23 @@ public class SnakeHead : MonoBehaviour
 
     IEnumerator JumpOutOfWindow(float duration)
     {
+        PlayerHandler.canMove = false;
 
         Vector3 startPosition = PlayerHandler.transform.localPosition;
         Vector3 targetPosition = new Vector3(startPosition.x, 0,300);
         float elapsed = 0f;
+
+        foreach (var item in PlayerHandler.SnakeRB)
+        {
+            item.isKinematic = false;
+            item.transform.GetChild(0).gameObject.SetActive(false);
+            item.position = startPosition;
+            item.linearVelocity = Vector3.zero; // optional: reset velocity if needed
+            item.angularVelocity = Vector3.zero; // optional: reset rotation momentum
+            item.transform.GetChild(0).gameObject.SetActive(true);
+            item.isKinematic = true;
+        }
+
 
         while (elapsed < duration)
         {
@@ -113,6 +129,12 @@ public class SnakeHead : MonoBehaviour
         {
             Debug.Log("Hit Wall");
             //KillThisSnake();
+            //PlayerHandler.transform.rotation = Quaternion.identity;
+            //PlayerHandler.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+            //PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
+            //PlayerHandler.transform.localPosition = Vector3.zero;
+            //PlayerHandler.transform.localEulerAngles = new Vector3(0, PlayerHandler.transform.localEulerAngles.y, PlayerHandler.transform.localEulerAngles.z);
+            StartCoroutine(JumpOutOfWindow(2));
         }
     }
 
@@ -133,7 +155,14 @@ public class SnakeHead : MonoBehaviour
             //KillThisSnake();
 
         }
+        else if (collision.gameObject.CompareTag("Wall"))
+        {
+            PlayerHandler.transform.position = new Vector3(PlayerHandler.playerIndex * -300, 250, 400);
+            StartCoroutine(JumpOutOfWindow(2));
+        }
     }
+
+
 
     void KillThisSnake()
     {

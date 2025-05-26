@@ -1,7 +1,8 @@
+using System.Collections.Generic; 
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerHandler : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class PlayerHandler : MonoBehaviour
     public Vector3 SnakeSpawnLocation;
     public SnakeHead sh;
     public Coroutine snakeSpawnCoro;
+    public List<Rigidbody> SnakeRB = new List<Rigidbody>();
     
 
     [Header("References")]
@@ -99,6 +101,8 @@ public class PlayerHandler : MonoBehaviour
         this.transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
         this.transform.localEulerAngles = new Vector3(0, this.transform.localEulerAngles.y, this.transform.localEulerAngles.z);
         GameObject newSnake = Instantiate(SnakeHead, thisTransform);
+        Rigidbody snakeHeadRB = newSnake.GetComponent<Rigidbody>();
+        SnakeRB.Add(snakeHeadRB);
         //newSnake.transform.localPosition = SnakeSpawnLocation;
         sh = newSnake.GetComponent<SnakeHead>();
         sh.PlayerHandler = this;
