@@ -1,5 +1,6 @@
 # WindowWorld
 <img width="640" alt="windowWorld1" src="https://github.com/user-attachments/assets/79f7e578-fb00-40a7-a48d-4add0104ea8a" />
+
 Project includes all assets to build the unity project. The adurino code, the wireing and the right Port are not essential for the project to run. An UI-Button also allows players to join.
 
 # Description of the project
