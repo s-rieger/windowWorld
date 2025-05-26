@@ -112,7 +112,7 @@ public class SnakeHead : MonoBehaviour
         if (other.CompareTag("Wall"))
         {
             Debug.Log("Hit Wall");
-            KillThisSnake();
+            //KillThisSnake();
         }
     }
 
@@ -130,7 +130,7 @@ public class SnakeHead : MonoBehaviour
             {
                 Debug.Log("Hit Someones Body");
             }
-            KillThisSnake();
+            //KillThisSnake();
 
         }
     }
