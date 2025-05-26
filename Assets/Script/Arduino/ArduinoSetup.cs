@@ -43,6 +43,8 @@ public class ArduinoSetup : MonoBehaviour
         isRunning = true;
         serialThread = new Thread(ReadSerialPortInBackground);
         serialThread.Start();
+        
+        SetAllLedsColor("OFF");
     }
 
     void Start()
@@ -59,7 +61,7 @@ public class ArduinoSetup : MonoBehaviour
             if (value.StartsWith("ALERT:HighLight"))
             {
                 Debug.Log("High light detected");
-                SetLedColor("RED");
+                SetAllLedsColor("RED");
                 screenDetector.JoinPlayer();
             }
         }
@@ -99,13 +101,13 @@ public class ArduinoSetup : MonoBehaviour
         }
     }
     
-    public void SetLedColor(string colorCommand)
+    public void SetLedColorForPlayer(int playerNumber, string colorCommand)
     {
         if (!sp.IsOpen) return;
 
         try
         {
-            sp.WriteLine(colorCommand);
+            sp.WriteLine($"LED{playerNumber}:{colorCommand}");
             sp.BaseStream.Flush();
         }
         catch (System.Exception ex)
@@ -113,4 +115,20 @@ public class ArduinoSetup : MonoBehaviour
             Debug.LogError("Send error: " + ex.Message);
         }
     }
+    
+    public void SetAllLedsColor(string colorCommand)
+    {
+        if (!sp.IsOpen) return;
+
+        try
+        {
+            sp.WriteLine($"ALL:{colorCommand}");
+            sp.BaseStream.Flush();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Send error: " + ex.Message);
+        }
+    }
+    
 }

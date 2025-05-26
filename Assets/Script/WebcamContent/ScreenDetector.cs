@@ -537,7 +537,6 @@ public class ScreenDetector : MonoBehaviour
 
             if (fillPercentage >= 1)
             {
-                //ArduinoSetup.instance.SetLedColor("GREEN");
                 ClearFrame(playerScreens[playerIndex]);
 
                 PlayerScreen tmp = playerScreens[playerIndex];
@@ -586,7 +585,7 @@ public class ScreenDetector : MonoBehaviour
                 newPlayerHandler.StartCoroutine(newPlayerHandler.SpawnSnakeCoro());
 
                 PlayerHandlers[playerIndex] = newPlayerHandler;
-
+                ArduinoSetup.instance.SetLedColorForPlayer(playerIndex + 1, "GREEN");
                 if (traceActive[playerIndex] == false)
                 {
                     traceActive[playerIndex] = true;

@@ -59,7 +59,14 @@ public class WindowCoverHandler : MonoBehaviour
 
     IEnumerator CloseWindowCoro(int index)
     {
-        //ArduinoSetup.instance.SetLedColor("OFF");
+        for (int i = 0; i < ScreenDetector.Instance.PlayerHandlers.Count; i++)
+        {
+            if (ScreenDetector.Instance.PlayerHandlers[i] == null)
+            {
+                ArduinoSetup.instance.SetLedColorForPlayer(i + 1, "OFF");
+            }
+        }
+
         Quaternion startRotationLeft = leftCover.rotation;
         Quaternion startRotationRight = rightCover.rotation;
         Quaternion endRotationLeft = Quaternion.Euler(-90f, 180, 180);
