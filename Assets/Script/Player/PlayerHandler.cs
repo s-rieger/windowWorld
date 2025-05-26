@@ -12,11 +12,6 @@ public class PlayerHandler : MonoBehaviour
     public int playerIndex;
     public Color PlayerColor;
 
-    [Header("Player Movement Stats")]
-    [SerializeField] private float playerRotSpeed;
-    [SerializeField] private float playerMoveSpeed;
-    [SerializeField] private float playerStretchSpeed;
-
     [Header("Flower Stuff")]
     public GameObject flower;
     public FlowerHandler fh;
