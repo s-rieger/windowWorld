@@ -148,15 +148,6 @@ public class SnakeHead : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Collectable"))
-        {
-            Debug.Log("Collected Orb");
-            PlayerHandler.CollectOrb();
-            OrbManager.Instance.SpawnOrb();
-
-            Destroy(other.gameObject);
-        }
-
         if (other.CompareTag("Wall"))
         {
             Debug.Log("Hit Wall");
@@ -167,6 +158,17 @@ public class SnakeHead : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("Collision with: " + collision.gameObject.name);
+        
+        if (collision.gameObject.CompareTag("Collectable"))
+        {
+            Debug.Log("Collected Orb");
+            PlayerHandler.CollectOrb();
+            // OrbManager.Instance.SpawnOrb();
+
+            Destroy(collision.gameObject);
+        }
+        
         if (collision.gameObject.CompareTag("SnakeBody"))
         {
             if(lifeTime < initialProtection) { return; }

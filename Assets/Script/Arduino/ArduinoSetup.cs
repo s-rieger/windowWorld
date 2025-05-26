@@ -120,14 +120,22 @@ public class ArduinoSetup : MonoBehaviour
     {
         if (!sp.IsOpen) return;
 
-        try
+        // try
+        // {
+        //     sp.WriteLine($"ALL:{colorCommand}");
+        //     sp.BaseStream.Flush();
+        // }
+        // catch (System.Exception ex)
+        // {
+        //     Debug.LogError("Send error: " + ex.Message);
+        // }
+        
+        for (int i = 0; i < ScreenDetector.Instance.PlayerHandlers.Count; i++)
         {
-            sp.WriteLine($"ALL:{colorCommand}");
-            sp.BaseStream.Flush();
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("Send error: " + ex.Message);
+            if (ScreenDetector.Instance.PlayerHandlers[i] == null)
+            {
+                SetLedColorForPlayer(i + 1, colorCommand);
+            }
         }
     }
     
